@@ -141,12 +141,13 @@ scripts/
 
 # ============================================================================
 # Files to KEEP (whitelist pattern reference):
-# - run_hacker_bench.py          (main runner)
-# - run_multi_model_bench.sh     (batch runner)
-# - requirements.txt             (dependencies)
-# - Dockerfile                   (container)
-# - docker-compose.yml           (container)
-# - config/                      (configuration)
-# - evm_hacker_bench/*.py        (core modules, except test_*)
-# - evm_hacker_bench/tools/      (tool implementations)
+# - run_hacker_bench.py               (main runner)
+# - run_multi_model_bench.sh.example  (batch runner template)
+# - requirements.txt                  (dependencies)
+# - Dockerfile                        (container)
+# - docker-compose.yml                (container)
+# - config/                           (configuration)
+# - evm_hacker_bench/*.py             (core modules, except test_*)
+# - evm_hacker_bench/tools/           (tool implementations)
+# - README.md                         (documentation)
 # ============================================================================

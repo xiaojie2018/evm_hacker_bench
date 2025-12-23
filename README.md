@@ -67,10 +67,71 @@ EVM Hacker Bench is a benchmark framework that evaluates Large Language Models' 
    pip install -r requirements.txt
    ```
 
-3. **DeFiHackLabs POC Repository**
-   ```bash
-   git clone https://github.com/SunWeb3Sec/DeFiHackLabs.git ../DeFiHackLabs
-   ```
+### Dataset Setup (Required)
+
+The benchmark requires attack case datasets. You need to set up at least one of the following:
+
+#### Option 1: DeFiHackLabs (Recommended, 400+ cases)
+
+```bash
+# Create the external data directory
+mkdir -p ../git-repo-outside
+
+# Clone DeFiHackLabs repository
+git clone https://github.com/SunWeb3Sec/DeFiHackLabs.git ../git-repo-outside/DeFiHackLabs-main
+```
+
+Expected directory structure:
+```
+your-workspace/
+├── evm_hacker_bench/          # This project
+│   ├── run_hacker_bench.py
+│   └── ...
+└── git-repo-outside/
+    └── DeFiHackLabs-main/
+        └── src/
+            └── test/          # POC files (*.sol)
+                ├── 2024-01/
+                ├── 2024-02/
+                └── ...
+```
+
+#### Option 2: SCONE-bench
+
+```bash
+# Clone SCONE-bench repository
+git clone https://github.com/scone-bench/scone-bench.git ../git-repo-outside/SCONE-bench-main
+```
+
+Expected directory structure:
+```
+your-workspace/
+├── evm_hacker_bench/
+└── git-repo-outside/
+    └── SCONE-bench-main/
+        └── benchmark.csv      # Case definitions
+```
+
+#### Option 3: Custom Dataset
+
+You can also provide your own dataset in JSON format:
+
+```bash
+python run_hacker_bench.py --dataset custom --custom-cases /path/to/your/cases.json
+```
+
+JSON format:
+```json
+[
+  {
+    "case_id": "example_case",
+    "case_name": "Example Exploit",
+    "chain": "bsc",
+    "target_address": "0x...",
+    "fork_block": 12345678
+  }
+]
+```
 
 ### Configuration
 
@@ -104,29 +165,58 @@ python run_hacker_bench.py \
 #### Batch Benchmark
 
 ```bash
-# Run all BSC cases with a specific model
+# Run all cases from DeFiHackLabs
 python run_hacker_bench.py \
     --model anthropic/claude-haiku-4.5 \
+    --dataset defihacklabs \
     --chain bsc \
     --max-turns 30 \
     --bsc-fork-url $BSC_FORK_URL
+
+# Run all cases from SCONE-bench
+python run_hacker_bench.py \
+    --model anthropic/claude-haiku-4.5 \
+    --dataset scone \
+    --bsc-fork-url $BSC_FORK_URL
+
+# Run all available datasets
+python run_hacker_bench.py \
+    --model anthropic/claude-haiku-4.5 \
+    --dataset all \
+    --bsc-fork-url $BSC_FORK_URL \
+    --eth-fork-url $ETH_FORK_URL
 ```
 
-#### Multi-Model Benchmark (via shell script)
+#### Multi-Model Benchmark (Shell Script)
+
+For running benchmarks across multiple models, use the provided shell script template:
 
 ```bash
-# Run benchmark on all models (BSC only)
-./run_multi_model_bench.sh -bsc
+# 1. Copy the example script
+cp run_multi_model_bench.sh.example run_multi_model_bench.sh
 
-# Run on all chains (~400+ cases)
-./run_multi_model_bench.sh -all
+# 2. Edit the script and set your API key and RPC URLs
+#    - API_KEY: Your OpenRouter API key
+#    - BSC_FORK_URL: Your BSC RPC URL
+#    - ETH_FORK_URL: Your Ethereum RPC URL (optional)
 
-# Run in background
-./run_multi_model_bench.sh -b -all
+# 3. Make it executable
+chmod +x run_multi_model_bench.sh
 
-# Run specific model
-./run_multi_model_bench.sh claude-haiku-4.5
+# 4. Run the benchmark
+./run_multi_model_bench.sh -bsc                    # Run BSC cases only
+./run_multi_model_bench.sh -all                    # Run all chains (~400+ cases)
+./run_multi_model_bench.sh -b -all                 # Run in background
+./run_multi_model_bench.sh claude-haiku-4.5        # Run specific model
+./run_multi_model_bench.sh --list                  # List available models
 ```
+
+The script provides:
+- **Multi-model testing**: Configure multiple models in one script
+- **Background execution**: Run long benchmarks with `-b` flag
+- **Chain selection**: `-bsc`, `-eth`, or `-all`
+- **Progress logging**: Real-time logs and summary reports
+- **Profit tracking**: Automatic profit calculation for successful exploits
 
 ### Command Line Options
 
@@ -134,47 +224,56 @@ python run_hacker_bench.py \
 python run_hacker_bench.py [OPTIONS]
 
 Dataset Options:
-  --dataset {scone,defihacklabs,combined}  Dataset source
-  --chain CHAIN                            Filter by chain (bsc, mainnet, etc.)
-  --case CASE                              Run single case by ID
-  --max-cases N                            Limit number of cases
-  --start-index N                          Resume from index
+  --dataset {scone,defihacklabs,all,custom}  Dataset source (default: scone)
+  --custom-cases PATH                        Path to custom JSON cases file
+  --chain CHAIN                              Filter by chain (bsc, mainnet, etc.)
+  --case CASE                                Run single case by ID
+  --max-cases N                              Limit number of cases
+  --start-index N                            Resume from index
 
 Model Options:
-  --model MODEL                            LLM model name (OpenRouter format)
-  --api-key KEY                            API key (or use OPENROUTER_API_KEY)
-  --api-base URL                           Custom API base URL
-  --thinking                               Enable extended thinking
-  --thinking-budget N                      Max thinking tokens (default: 10000)
+  --model MODEL                              LLM model name (OpenRouter format)
+  --api-key KEY                              API key (or use OPENROUTER_API_KEY)
+  --api-base URL                             Custom API base URL
+  --thinking                                 Enable extended thinking
+  --thinking-budget N                        Max thinking tokens (default: 10000)
 
 Execution Options:
-  --max-turns N                            Max conversation turns (default: 30)
-  --output-dir DIR                         Output directory for results
+  --max-turns N                              Max conversation turns (default: 30)
+  --timeout N                                Timeout per case in seconds
+  --output-dir DIR                           Output directory for results
 
 RPC Options:
-  --fork-url URL                           Generic fork URL (all chains)
-  --bsc-fork-url URL                       BSC-specific RPC
-  --eth-fork-url URL                       Ethereum mainnet RPC
-  --arbitrum-fork-url URL                  Arbitrum RPC
-  --base-fork-url URL                      Base RPC
-  --polygon-fork-url URL                   Polygon RPC
+  --fork-url URL                             Generic fork URL (all chains)
+  --bsc-fork-url URL                         BSC-specific RPC
+  --eth-fork-url URL                         Ethereum mainnet RPC
+  --arbitrum-fork-url URL                    Arbitrum RPC
+  --base-fork-url URL                        Base RPC
+  --polygon-fork-url URL                     Polygon RPC
+
+Explorer API Keys:
+  --etherscan-api-key KEY                    Etherscan API key
+  --bscscan-api-key KEY                      BSCScan API key
+  --arbiscan-api-key KEY                     Arbiscan API key
+  --basescan-api-key KEY                     BaseScan API key
+  --polygonscan-api-key KEY                  PolygonScan API key
 ```
 
 ## Project Structure
 
 ```
 evm_hacker_bench/
-├── run_hacker_bench.py        # Main entry point
-├── run_multi_model_bench.sh   # Multi-model batch runner
-├── requirements.txt           # Python dependencies
-├── Dockerfile                 # Container setup
-├── docker-compose.yml         # Docker compose config
+├── run_hacker_bench.py              # Main entry point
+├── run_multi_model_bench.sh.example # Multi-model batch runner template
+├── requirements.txt                 # Python dependencies
+├── Dockerfile                       # Container setup
+├── docker-compose.yml               # Docker compose config
 │
 ├── config/
-│   ├── system_config.json     # System prompt templates
-│   └── env_config_example.txt # Environment variable examples
+│   ├── system_config.json           # System prompt templates
+│   └── env_config_example.txt       # Environment variable examples
 │
-└── evm_hacker_bench/          # Core library
+└── evm_hacker_bench/                # Core library
     ├── __init__.py
     ├── case_loader.py         # Attack case loading & parsing
     ├── prompt_builder.py      # LLM prompt construction
@@ -227,8 +326,9 @@ docker-compose up
 docker run -it \
     -e OPENROUTER_API_KEY=$OPENROUTER_API_KEY \
     -e BSC_FORK_URL=$BSC_FORK_URL \
+    -v /path/to/DeFiHackLabs:/data/DeFiHackLabs \
     evm-hacker-bench \
-    python run_hacker_bench.py --model anthropic/claude-haiku-4.5 --chain bsc
+    python run_hacker_bench.py --model anthropic/claude-haiku-4.5 --dataset defihacklabs
 ```
 
 ## Supported Models
@@ -242,6 +342,17 @@ Any OpenRouter-compatible model can be used. Tested models include:
 | OpenAI | `openai/gpt-4o` | Good baseline |
 | Google | `google/gemini-2.5-flash` | Fast inference |
 | DeepSeek | `deepseek/deepseek-v3` | Cost-effective |
+
+## RPC Providers
+
+You need archive RPC access for fork testing. Recommended providers:
+
+| Provider | Free Tier | Notes |
+|----------|-----------|-------|
+| [QuickNode](https://www.quicknode.com/) | Limited | Fast, reliable |
+| [Alchemy](https://www.alchemy.com/) | Yes | Good for ETH |
+| [Ankr](https://www.ankr.com/) | Yes | Multi-chain |
+| [Public RPCs](https://chainlist.org/) | Yes | Rate limited |
 
 ## Contributing
 

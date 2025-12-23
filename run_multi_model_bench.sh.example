@@ -1,0 +1,432 @@
+#!/bin/bash
+# Multi-Model EVM Hacker Benchmark Runner
+# 
+# Usage: 
+#   ./run_multi_model_bench.sh                    # Run all models
+#   ./run_multi_model_bench.sh claude-haiku-4.5   # Run specific model
+#   ./run_multi_model_bench.sh -b -all            # Run all chains in background
+#   ./run_multi_model_bench.sh --list             # List available models
+#
+# Setup:
+#   1. Copy this file: cp run_multi_model_bench.sh.example run_multi_model_bench.sh
+#   2. Edit the API_KEY and RPC URLs below
+#   3. chmod +x run_multi_model_bench.sh
+#   4. Run: ./run_multi_model_bench.sh
+
+set -e
+
+# ============================================================================
+# Configuration - EDIT THESE VALUES
+# ============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_DIR="${SCRIPT_DIR}/logs"
+
+mkdir -p "${LOG_DIR}"
+
+# Timestamp (YYYYMMDD_HHMM)
+TIMESTAMP=$(date +"%Y%m%d_%H%M")
+
+# Summary files
+SUMMARY_SCORE_FILE="${LOG_DIR}/summary_score_${TIMESTAMP}.log"
+SUMMARY_DETAIL_FILE="${LOG_DIR}/summary_detail_${TIMESTAMP}.log"
+
+# ============================================================================
+# API Key - SET YOUR OWN KEY HERE
+# ============================================================================
+# Get your API key from: https://openrouter.ai/keys
+API_KEY="${OPENROUTER_API_KEY:-your-api-key-here}"
+
+# ============================================================================
+# RPC URLs - SET YOUR OWN RPC URLS HERE
+# ============================================================================
+# Recommended providers: QuickNode, Alchemy, Ankr
+# BSC RPC (required for BSC cases)
+BSC_FORK_URL="${BSC_FORK_URL:-https://your-bsc-rpc-url-here}"
+
+# Ethereum RPC (optional, for ETH cases)
+ETH_FORK_URL="${ETH_FORK_URL:-}"
+
+# ============================================================================
+# Parameters
+# ============================================================================
+# Leave CHAIN empty to test all chains, or set to specific chain (bsc, mainnet, etc.)
+CHAIN="${CHAIN:-}"
+MAX_TURNS=30
+THINKING_BUDGET=2000
+
+# ============================================================================
+# Model List - CUSTOMIZE YOUR MODELS HERE
+# ============================================================================
+# Format: ["display_name"]="model_id|thinking_enabled"
+# thinking_enabled: true = enable extended thinking, false = disable
+
+declare -A MODELS=(
+    # Anthropic
+    ["claude-sonnet-4.5-thinking"]="anthropic/claude-sonnet-4.5|true"
+    ["claude-sonnet-4.5-no-thinking"]="anthropic/claude-sonnet-4.5|false"
+    ["claude-haiku-4.5"]="anthropic/claude-haiku-4.5|false"
+    
+    # OpenAI
+    # ["gpt-4o"]="openai/gpt-4o|false"
+    # ["gpt-4o-mini"]="openai/gpt-4o-mini|false"
+    
+    # Google
+    # ["gemini-2.5-flash"]="google/gemini-2.5-flash|false"
+    
+    # DeepSeek
+    # ["deepseek-v3"]="deepseek/deepseek-v3|false"
+    
+    # Qwen
+    # ["qwen3-coder"]="qwen/qwen3-coder|false"
+)
+
+# ============================================================================
+# Functions
+# ============================================================================
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
+init_summary() {
+    cat > "$SUMMARY_SCORE_FILE" << EOF
+=====================================================================
+EVM Hacker Bench - Model Success Rate Summary
+Timestamp: $(date '+%Y-%m-%d %H:%M:%S')
+=====================================================================
+
+$(printf "%-40s | %-8s | %-8s | %-10s | %-15s\n" "Model" "Success" "Total" "Rate" "Total Profit")
+$(printf "%-40s-|----------|----------|------------|----------------\n" "----------------------------------------")
+EOF
+
+    cat > "$SUMMARY_DETAIL_FILE" << EOF
+=====================================================================
+EVM Hacker Bench - Task Execution Details
+Timestamp: $(date '+%Y-%m-%d %H:%M:%S')
+=====================================================================
+EOF
+}
+
+save_results() {
+    local log_file="$1"
+    local short_name="$2"
+    local model_name="$3"
+    
+    local success=$(grep -c "Success: ✅ Yes" "$log_file" 2>/dev/null || echo "0")
+    local fail=$(grep -c "Success: ❌ No" "$log_file" 2>/dev/null || echo "0")
+    local total=$((success + fail))
+    
+    local rate="0.00%"
+    if [[ $total -gt 0 ]]; then
+        rate=$(awk "BEGIN {printf \"%.2f%%\", ($success / $total) * 100}")
+    fi
+    
+    # Calculate total profit from successful cases
+    local total_profit=$(grep -A 2 "Success: ✅ Yes" "$log_file" 2>/dev/null | \
+        grep -oP 'Profit:\s*\K[0-9]+\.?[0-9]*' | \
+        awk '{sum += $1} END {printf "%.4f", sum}' 2>/dev/null || echo "0.0000")
+    
+    # Append to score summary
+    printf "%-40s | %-8s | %-8s | %-10s | %-15s\n" "$short_name" "$success" "$total" "$rate" "$total_profit" >> "$SUMMARY_SCORE_FILE"
+    
+    # Append to detail summary
+    cat >> "$SUMMARY_DETAIL_FILE" << EOF
+
+======================================================================
+Model: $model_name ($short_name)
+Success: $success / $total ($rate)
+Total Profit: $total_profit native tokens
+======================================================================
+EOF
+    
+    grep -A 7 "Attack Summary" "$log_file" 2>/dev/null | grep -E "Case:|Success:|Profit:|Turns:|Date:" | sed 's/^/  /' >> "$SUMMARY_DETAIL_FILE" || true
+    
+    log "📊 Results: $success/$total ($rate) | Total Profit: $total_profit"
+}
+
+run_model() {
+    local short_name="$1"
+    local config="${MODELS[$short_name]}"
+    
+    if [[ -z "$config" ]]; then
+        echo "❌ Unknown model: $short_name"
+        return 1
+    fi
+    
+    IFS='|' read -r model_name thinking <<< "$config"
+    
+    local log_file="${LOG_DIR}/${short_name}_${TIMESTAMP}.log"
+    
+    echo ""
+    echo "======================================================================"
+    echo "🚀 Running: $short_name"
+    echo "   Model: $model_name"
+    echo "   Thinking: $thinking"
+    echo "   Log: $log_file"
+    echo "======================================================================"
+    
+    # Build command
+    local cmd="python ${SCRIPT_DIR}/run_hacker_bench.py"
+    cmd+=" --model $model_name"
+    cmd+=" --api-key $API_KEY"
+    cmd+=" --max-turns $MAX_TURNS"
+    
+    # Add chain filter if specified
+    if [[ -n "$CHAIN" ]]; then
+        cmd+=" --chain $CHAIN"
+    fi
+    
+    # Add RPC URLs for different chains
+    if [[ -n "$BSC_FORK_URL" && "$BSC_FORK_URL" != "https://your-bsc-rpc-url-here" ]]; then
+        cmd+=" --bsc-fork-url $BSC_FORK_URL"
+    fi
+    if [[ -n "$ETH_FORK_URL" ]]; then
+        cmd+=" --eth-fork-url $ETH_FORK_URL"
+    fi
+    
+    if [[ "$thinking" == "true" ]]; then
+        cmd+=" --thinking --thinking-budget $THINKING_BUDGET"
+    fi
+    
+    log "Starting: $model_name"
+    
+    # Run with real-time output to both console and log file
+    if command -v stdbuf &> /dev/null; then
+        stdbuf -oL -eL $cmd 2>&1 | tee "$log_file"
+    else
+        $cmd 2>&1 | tee "$log_file"
+    fi
+    
+    local exit_code=${PIPESTATUS[0]}
+    
+    if [[ $exit_code -eq 0 ]]; then
+        log "✅ Completed: $short_name"
+    else
+        log "❌ Failed: $short_name (exit: $exit_code)"
+    fi
+    
+    # Save results to summary
+    save_results "$log_file" "$short_name" "$model_name"
+    
+    # Clean up anvil
+    pkill -f anvil 2>/dev/null || true
+    sleep 2
+    
+    return $exit_code
+}
+
+list_models() {
+    echo ""
+    echo "Available Models:"
+    echo "=============================="
+    echo ""
+    printf "%-35s | %-40s | %-8s\n" "Short Name" "Model" "Thinking"
+    echo "-----------------------------------|------------------------------------------|----------"
+    
+    for key in $(echo "${!MODELS[@]}" | tr ' ' '\n' | sort); do
+        IFS='|' read -r model thinking <<< "${MODELS[$key]}"
+        local t="❌"
+        [[ "$thinking" == "true" ]] && t="✅"
+        printf "%-35s | %-40s | %-8s\n" "$key" "$model" "$t"
+    done
+    echo ""
+}
+
+show_help() {
+    echo "Usage: $0 [OPTIONS] [MODEL...]"
+    echo ""
+    echo "Chain Options (mutually exclusive):"
+    echo "  -all          Run all chains (BSC + ETH + others, ~400+ cases)"
+    echo "  -bsc          Run only BSC chain cases"
+    echo "  -eth          Run only Ethereum mainnet cases"
+    echo ""
+    echo "Other Options:"
+    echo "  -b            Run in background (nohup)"
+    echo "  --list, -l    List available models"
+    echo "  --help, -h    Show this help"
+    echo ""
+    echo "Environment Variables:"
+    echo "  OPENROUTER_API_KEY  API key for OpenRouter"
+    echo "  BSC_FORK_URL        RPC URL for BSC chain"
+    echo "  ETH_FORK_URL        RPC URL for Ethereum mainnet"
+    echo ""
+    echo "Examples:"
+    echo "  $0 -b -all                      # Run all 400+ cases in background"
+    echo "  $0 -b -bsc                      # Run only BSC cases in background"
+    echo "  $0 -eth                         # Run only ETH cases"
+    echo "  $0 -b -all claude-haiku-4.5     # Run specific model on all chains"
+    echo ""
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+
+BACKGROUND=false
+MODELS_TO_RUN=()
+CHAIN_MODE=""  # "", "all", "bsc", "eth"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -b|--background)
+            BACKGROUND=true
+            shift
+            ;;
+        -all|--all)
+            CHAIN_MODE="all"
+            CHAIN=""  # No filter, run all chains
+            shift
+            ;;
+        -bsc|--bsc)
+            CHAIN_MODE="bsc"
+            CHAIN="bsc"
+            shift
+            ;;
+        -eth|--eth)
+            CHAIN_MODE="eth"
+            CHAIN="mainnet"
+            shift
+            ;;
+        --list|-l)
+            list_models
+            exit 0
+            ;;
+        --help|-h)
+            show_help
+            exit 0
+            ;;
+        *)
+            MODELS_TO_RUN+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Default to BSC only if no chain mode specified (backward compatibility)
+if [[ -z "$CHAIN_MODE" ]]; then
+    CHAIN_MODE="bsc"
+    CHAIN="bsc"
+fi
+
+# If no models specified, run all
+if [[ ${#MODELS_TO_RUN[@]} -eq 0 ]]; then
+    MODELS_TO_RUN=($(echo "${!MODELS[@]}" | tr ' ' '\n' | sort))
+fi
+
+# Check API key
+if [[ "$API_KEY" == "your-api-key-here" ]]; then
+    echo "❌ Error: Please set your API key"
+    echo "   Edit this script and set API_KEY, or set OPENROUTER_API_KEY environment variable"
+    exit 1
+fi
+
+# Check RPC URL
+if [[ "$BSC_FORK_URL" == "https://your-bsc-rpc-url-here" ]]; then
+    echo "❌ Error: Please set your BSC RPC URL"
+    echo "   Edit this script and set BSC_FORK_URL, or set BSC_FORK_URL environment variable"
+    exit 1
+fi
+
+# Background mode: restart script with nohup
+if [[ "$BACKGROUND" == true ]]; then
+    MASTER_LOG="${LOG_DIR}/master_${TIMESTAMP}.log"
+    
+    BG_CHAIN_DISPLAY="BSC only"
+    [[ "$CHAIN_MODE" == "all" ]] && BG_CHAIN_DISPLAY="ALL chains (~400+ cases)"
+    [[ "$CHAIN_MODE" == "eth" ]] && BG_CHAIN_DISPLAY="Ethereum mainnet only"
+    
+    echo "======================================================================"
+    echo "🔥 Starting in BACKGROUND mode"
+    echo "======================================================================"
+    echo "Chain Mode: $BG_CHAIN_DISPLAY"
+    echo "Models: ${#MODELS_TO_RUN[@]}"
+    echo "Master Log: $MASTER_LOG"
+    echo "Score Summary: $SUMMARY_SCORE_FILE"
+    echo "Detail Summary: $SUMMARY_DETAIL_FILE"
+    echo ""
+    
+    MODEL_LIST="${MODELS_TO_RUN[*]}"
+    
+    CHAIN_OPT=""
+    [[ "$CHAIN_MODE" == "all" ]] && CHAIN_OPT="-all"
+    [[ "$CHAIN_MODE" == "bsc" ]] && CHAIN_OPT="-bsc"
+    [[ "$CHAIN_MODE" == "eth" ]] && CHAIN_OPT="-eth"
+    
+    nohup bash -c "
+        cd '$SCRIPT_DIR'
+        ./run_multi_model_bench.sh $CHAIN_OPT $MODEL_LIST
+    " > "$MASTER_LOG" 2>&1 &
+    
+    PID=$!
+    echo "$PID" > "${LOG_DIR}/master_${TIMESTAMP}.pid"
+    
+    echo "✅ Started in background"
+    echo "   PID: $PID"
+    echo ""
+    echo "📋 Commands:"
+    echo "   tail -f $MASTER_LOG           # Watch progress"
+    echo "   cat $SUMMARY_SCORE_FILE       # View results"
+    echo "   kill $PID                     # Stop"
+    echo ""
+    exit 0
+fi
+
+# Validate RPC URLs based on chain mode
+if [[ "$CHAIN_MODE" == "eth" && -z "$ETH_FORK_URL" ]]; then
+    echo "❌ Error: ETH_FORK_URL is required for -eth mode"
+    echo "   Set it via: ETH_FORK_URL=https://... $0 -eth"
+    exit 1
+fi
+
+if [[ "$CHAIN_MODE" == "all" && -z "$ETH_FORK_URL" ]]; then
+    echo "⚠️  Warning: ETH_FORK_URL not set, Ethereum cases will be skipped"
+    echo "   Set it via: ETH_FORK_URL=https://... $0 -all"
+    echo ""
+fi
+
+# Determine chain mode display
+CHAIN_MODE_DISPLAY="bsc only (default)"
+[[ "$CHAIN_MODE" == "all" ]] && CHAIN_MODE_DISPLAY="ALL chains (~400+ cases)"
+[[ "$CHAIN_MODE" == "bsc" ]] && CHAIN_MODE_DISPLAY="BSC only"
+[[ "$CHAIN_MODE" == "eth" ]] && CHAIN_MODE_DISPLAY="Ethereum mainnet only"
+
+echo ""
+echo "======================================================================"
+echo "🔥 EVM Hacker Bench - Multi-Model Runner"
+echo "======================================================================"
+echo "Timestamp: $TIMESTAMP"
+echo "Chain Mode: $CHAIN_MODE_DISPLAY"
+echo "Max Turns: $MAX_TURNS"
+echo "Models: ${#MODELS_TO_RUN[@]}"
+echo "BSC RPC: ${BSC_FORK_URL:0:50}..."
+echo "ETH RPC: ${ETH_FORK_URL:-not configured}"
+echo "Log Dir: $LOG_DIR"
+echo "Score Summary: $SUMMARY_SCORE_FILE"
+echo "Detail Summary: $SUMMARY_DETAIL_FILE"
+echo ""
+
+# Initialize summary files
+init_summary
+
+# Run each model sequentially
+for i in "${!MODELS_TO_RUN[@]}"; do
+    model="${MODELS_TO_RUN[$i]}"
+    echo ""
+    log "📌 Progress: $((i+1))/${#MODELS_TO_RUN[@]} - $model"
+    
+    run_model "$model" || true  # Continue on error
+done
+
+# Print final summary
+echo ""
+echo "======================================================================"
+echo "📊 FINAL SUMMARY"
+echo "======================================================================"
+cat "$SUMMARY_SCORE_FILE"
+echo ""
+echo "📁 Files saved:"
+echo "   $SUMMARY_SCORE_FILE"
+echo "   $SUMMARY_DETAIL_FILE"
+echo ""
+log "✅ All done!"
