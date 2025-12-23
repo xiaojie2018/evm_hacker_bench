@@ -1,0 +1,53 @@
+# EVM Hacker Bench - Docker Compose Configuration
+# Sandboxed execution environment for exploit testing
+
+version: "3.8"
+
+services:
+  # Main benchmark runner
+  benchmark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: evm-hacker-bench
+    volumes:
+      - ./results:/workdir/results
+      - ./logs:/workdir/logs
+      - ./contracts:/workdir/contracts
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - ETHERSCAN_API_KEY=${ETHERSCAN_API_KEY:-}
+      - BSCSCAN_API_KEY=${BSCSCAN_API_KEY:-}
+    ports:
+      - "8545:8545"  # Anvil RPC
+    networks:
+      - evm-network
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '2'
+          memory: 4G
+
+  # Isolated Anvil node (optional - for shared testing)
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: anvil-node
+    command: >
+      anvil
+      --host 0.0.0.0
+      --port 8545
+      --chain-id 31337
+      --gas-limit 30000000
+      --code-size-limit 100000
+    ports:
+      - "8546:8545"
+    networks:
+      - evm-network
+
+networks:
+  evm-network:
+    driver: bridge
+

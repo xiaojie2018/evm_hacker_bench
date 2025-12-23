@@ -1,0 +1,152 @@
+# ============================================================================
+# EVM Hacker Bench - Git Ignore
+# Only keep essential benchmark code, exclude all test/log/data files
+# ============================================================================
+
+# ==== Test Directory (CONTAINS SENSITIVE DATA - API KEYS!) ====
+test/
+tests/
+
+# ==== Workspace & Runtime Data ====
+# Exploit workspace (contains all test artifacts)
+.exploit_workspace/
+
+# Results and outputs
+results/
+output/
+outputs/
+
+# Logs
+logs/
+log/
+*.log
+*.log.*
+*.pid
+
+# ==== Documentation (generated) ====
+doc/
+docs/
+
+# ==== Data Files ====
+# CSV data files
+*.csv
+*.csv.*
+
+# JSON data files (except config)
+# results/*.json is already covered by results/
+
+# Dataset files
+*.pkl
+*.pickle
+*.parquet
+
+# ==== External Dependencies ====
+# Git submodules or external repos
+git-repo-outside/
+
+# ==== Python ====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ==== IDE & Editors ====
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ==== OS Generated ====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+*Zone.Identifier
+
+# ==== Environment & Secrets ====
+.env
+.env.*
+*.env
+!.env.example
+secrets/
+*.key
+*.pem
+
+# ==== Temporary Files ====
+*.tmp
+*.temp
+*.bak
+*.backup
+tmp/
+temp/
+
+# ==== Archives ====
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# ==== Foundry/Solidity (if any local cache) ====
+cache/
+out/
+broadcast/
+
+# ==== Test files in source ====
+evm_hacker_bench/test_*.py
+evm_hacker_bench/tests/
+
+# ==== Scripts (analysis/utility, not core) ====
+scripts/
+
+# ============================================================================
+# Files to KEEP (whitelist pattern reference):
+# - run_hacker_bench.py          (main runner)
+# - run_multi_model_bench.sh     (batch runner)
+# - requirements.txt             (dependencies)
+# - Dockerfile                   (container)
+# - docker-compose.yml           (container)
+# - config/                      (configuration)
+# - evm_hacker_bench/*.py        (core modules, except test_*)
+# - evm_hacker_bench/tools/      (tool implementations)
+# ============================================================================

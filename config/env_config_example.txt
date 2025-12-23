@@ -1,0 +1,23 @@
+# EVM Hacker Bench Configuration
+# Copy this file to .env and fill in your values
+
+# OpenRouter API Key (recommended for multi-model support)
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+
+# Alternative: Direct API Keys
+# OPENAI_API_KEY=sk-your-openai-key
+# ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
+
+# RPC URLs for fork (use paid/private for better reliability)
+ETH_MAINNET_RPC=https://eth.llamarpc.com
+BSC_MAINNET_RPC=https://bsc-dataseed.binance.org
+ARBITRUM_RPC=https://arb1.arbitrum.io/rpc
+BASE_RPC=https://mainnet.base.org
+
+# Anvil Configuration
+ANVIL_PORT=8545
+
+# Evaluation Settings
+TIMEOUT_SECONDS=3600
+MIN_PROFIT_ETH=0.1
+
