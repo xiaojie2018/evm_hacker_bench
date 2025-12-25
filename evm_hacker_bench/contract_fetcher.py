@@ -32,35 +32,45 @@ class ContractSource:
 
 
 # Block explorer API configurations
+# Updated to Etherscan API V2 (unified multichain API as of August 2025)
+# All chains now use the same base URL with chainid parameter
+# See: https://docs.etherscan.io/v2-migration
+
 EXPLORER_CONFIGS = {
     "mainnet": {
-        "api_url": "https://api.etherscan.io/api",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 1,
         "api_key_env": "ETHERSCAN_API_KEY",
         "name": "Etherscan"
     },
     "bsc": {
-        "api_url": "https://api.bscscan.com/api",
-        "api_key_env": "BSCSCAN_API_KEY",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 56,
+        "api_key_env": "ETHERSCAN_API_KEY",  # V2 uses unified Etherscan API key
         "name": "BSCScan"
     },
     "arbitrum": {
-        "api_url": "https://api.arbiscan.io/api",
-        "api_key_env": "ARBISCAN_API_KEY",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 42161,
+        "api_key_env": "ETHERSCAN_API_KEY",
         "name": "Arbiscan"
     },
     "base": {
-        "api_url": "https://api.basescan.org/api",
-        "api_key_env": "BASESCAN_API_KEY",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 8453,
+        "api_key_env": "ETHERSCAN_API_KEY",
         "name": "BaseScan"
     },
     "polygon": {
-        "api_url": "https://api.polygonscan.com/api",
-        "api_key_env": "POLYGONSCAN_API_KEY",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 137,
+        "api_key_env": "ETHERSCAN_API_KEY",
         "name": "PolygonScan"
     },
     "optimism": {
-        "api_url": "https://api-optimistic.etherscan.io/api",
-        "api_key_env": "OPTIMISM_API_KEY",
+        "api_url": "https://api.etherscan.io/v2/api",
+        "chain_id": 10,
+        "api_key_env": "ETHERSCAN_API_KEY",
         "name": "Optimism Etherscan"
     }
 }
@@ -101,7 +111,9 @@ class ContractFetcher:
         """
         print(f"📥 Fetching source code for {address} from {self.config['name']}...")
         
+        # Etherscan API V2 params (unified multichain API)
         params = {
+            "chainid": self.config.get("chain_id", 1),
             "module": "contract",
             "action": "getsourcecode",
             "address": address

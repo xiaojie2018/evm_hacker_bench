@@ -20,16 +20,23 @@ set -e
 # ============================================================================
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${SCRIPT_DIR}/logs"
+
+# Timestamp directory (YYYYMMDD_HHMM)
+TIMESTAMP=$(date +"%Y%m%d_%H%M")
+LOG_DIR="${SCRIPT_DIR}/logs/${TIMESTAMP}"
 
 mkdir -p "${LOG_DIR}"
 
-# Timestamp (YYYYMMDD_HHMM)
-TIMESTAMP=$(date +"%Y%m%d_%H%M")
+# Summary files (no timestamp in filename, stored in timestamped directory)
+SUMMARY_SCORE_FILE="${LOG_DIR}/summary_score.log"
+SUMMARY_DETAIL_FILE="${LOG_DIR}/summary_detail.log"
 
-# Summary files
-SUMMARY_SCORE_FILE="${LOG_DIR}/summary_score_${TIMESTAMP}.log"
-SUMMARY_DETAIL_FILE="${LOG_DIR}/summary_detail_${TIMESTAMP}.log"
+# Create summary files immediately (for incremental writing)
+touch "${SUMMARY_SCORE_FILE}"
+touch "${SUMMARY_DETAIL_FILE}"
+echo "# EVM Hacker Bench Run - ${TIMESTAMP}" > "${SUMMARY_SCORE_FILE}"
+echo "# Started: $(date)" >> "${SUMMARY_SCORE_FILE}"
+echo "" >> "${SUMMARY_SCORE_FILE}"
 
 # ============================================================================
 # API Key - SET YOUR OWN KEY HERE
@@ -47,13 +54,22 @@ BSC_FORK_URL="${BSC_FORK_URL:-https://your-bsc-rpc-url-here}"
 # Ethereum RPC (optional, for ETH cases)
 ETH_FORK_URL="${ETH_FORK_URL:-}"
 
+# Block Explorer API Key (Etherscan V2 unified API for all chains)
+# Get your key from: https://etherscan.io/myapikey
+# See: https://docs.etherscan.io/v2-migration
+export ETHERSCAN_API_KEY="${ETHERSCAN_API_KEY:-your-etherscan-api-key-here}"
+
 # ============================================================================
 # Parameters
 # ============================================================================
 # Leave CHAIN empty to test all chains, or set to specific chain (bsc, mainnet, etc.)
 CHAIN="${CHAIN:-}"
-MAX_TURNS=30
+MAX_TURNS=100
+MAX_TURNS_SET=false  # Track if -n was explicitly set
+SESSION_TIMEOUT=3600  # Session timeout in seconds (default: 60 minutes)
+SESSION_TIMEOUT_SET=false  # Track if -t was explicitly set
 THINKING_BUDGET=2000
+PROGRESS_MODE="time"  # "time" or "turns"
 
 # ============================================================================
 # Model List - CUSTOMIZE YOUR MODELS HERE
@@ -96,8 +112,8 @@ EVM Hacker Bench - Model Success Rate Summary
 Timestamp: $(date '+%Y-%m-%d %H:%M:%S')
 =====================================================================
 
-$(printf "%-40s | %-8s | %-8s | %-10s | %-15s\n" "Model" "Success" "Total" "Rate" "Total Profit")
-$(printf "%-40s-|----------|----------|------------|----------------\n" "----------------------------------------")
+$(printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-10s | %-10s\n" "Model" "Success" "Total" "Rate" "Total Profit" "Avg Time" "Avg Turns")
+$(printf "%-40s-|----------|----------|------------|----------------|------------|----------\n" "----------------------------------------")
 EOF
 
     cat > "$SUMMARY_DETAIL_FILE" << EOF
@@ -113,8 +129,15 @@ save_results() {
     local short_name="$2"
     local model_name="$3"
     
-    local success=$(grep -c "Success: ✅ Yes" "$log_file" 2>/dev/null || echo "0")
-    local fail=$(grep -c "Success: ❌ No" "$log_file" 2>/dev/null || echo "0")
+    # Use tr to remove any newlines from grep output and ensure numeric value
+    local success
+    success=$(grep -c "Success: ✅ Yes" "$log_file" 2>/dev/null | tr -d '\n' || true)
+    [[ -z "$success" || ! "$success" =~ ^[0-9]+$ ]] && success=0
+    
+    local fail
+    fail=$(grep -c "Success: ❌ No" "$log_file" 2>/dev/null | tr -d '\n' || true)
+    [[ -z "$fail" || ! "$fail" =~ ^[0-9]+$ ]] && fail=0
+    
     local total=$((success + fail))
     
     local rate="0.00%"
@@ -123,12 +146,33 @@ save_results() {
     fi
     
     # Calculate total profit from successful cases
-    local total_profit=$(grep -A 2 "Success: ✅ Yes" "$log_file" 2>/dev/null | \
+    local total_profit
+    total_profit=$(grep -A 2 "Success: ✅ Yes" "$log_file" 2>/dev/null | \
         grep -oP 'Profit:\s*\K[0-9]+\.?[0-9]*' | \
-        awk '{sum += $1} END {printf "%.4f", sum}' 2>/dev/null || echo "0.0000")
+        awk '{sum += $1} END {printf "%.4f", sum}' 2>/dev/null | tr -d '\n' || true)
+    [[ -z "$total_profit" ]] && total_profit="0.0000"
+    
+    # Calculate average duration and turns
+    local avg_duration="N/A"
+    local avg_turns="N/A"
+    if [[ $total -gt 0 ]]; then
+        # Extract duration from "Duration: X.X min" lines
+        local total_duration
+        total_duration=$(grep -oP 'Duration:\s*\K[0-9]+\.?[0-9]*' "$log_file" 2>/dev/null | \
+            awk '{sum += $1} END {printf "%.1f", sum}' 2>/dev/null | tr -d '\n' || true)
+        [[ -z "$total_duration" ]] && total_duration="0"
+        avg_duration=$(awk "BEGIN {printf \"%.1f min\", $total_duration / $total}")
+        
+        # Extract turns from "Turns: X" lines
+        local total_turns
+        total_turns=$(grep -oP 'Turns:\s*\K[0-9]+' "$log_file" 2>/dev/null | \
+            awk '{sum += $1} END {printf "%d", sum}' 2>/dev/null | tr -d '\n' || true)
+        [[ -z "$total_turns" ]] && total_turns="0"
+        avg_turns=$(awk "BEGIN {printf \"%.1f\", $total_turns / $total}")
+    fi
     
     # Append to score summary
-    printf "%-40s | %-8s | %-8s | %-10s | %-15s\n" "$short_name" "$success" "$total" "$rate" "$total_profit" >> "$SUMMARY_SCORE_FILE"
+    printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-10s | %-10s\n" "$short_name" "$success" "$total" "$rate" "$total_profit" "$avg_duration" "$avg_turns" >> "$SUMMARY_SCORE_FILE"
     
     # Append to detail summary
     cat >> "$SUMMARY_DETAIL_FILE" << EOF
@@ -137,12 +181,14 @@ save_results() {
 Model: $model_name ($short_name)
 Success: $success / $total ($rate)
 Total Profit: $total_profit native tokens
+Avg Duration: $avg_duration | Avg Turns: $avg_turns
 ======================================================================
 EOF
     
-    grep -A 7 "Attack Summary" "$log_file" 2>/dev/null | grep -E "Case:|Success:|Profit:|Turns:|Date:" | sed 's/^/  /' >> "$SUMMARY_DETAIL_FILE" || true
+    # Extract attack summary with duration and turns info
+    grep -A 10 "Attack Summary" "$log_file" 2>/dev/null | grep -E "Case:|Success:|Profit:|Turns:|Duration:|Date:" | sed 's/^/  /' >> "$SUMMARY_DETAIL_FILE" || true
     
-    log "📊 Results: $success/$total ($rate) | Total Profit: $total_profit"
+    log "📊 Results: $success/$total ($rate) | Total Profit: $total_profit | Avg: $avg_duration, $avg_turns turns"
 }
 
 run_model() {
@@ -156,7 +202,16 @@ run_model() {
     
     IFS='|' read -r model_name thinking <<< "$config"
     
-    local log_file="${LOG_DIR}/${short_name}_${TIMESTAMP}.log"
+    local log_file="${LOG_DIR}/${short_name}.log"
+    
+    # Create log file immediately with header (incremental writing)
+    {
+        echo "# EVM Hacker Bench - Model Log"
+        echo "# Model: $short_name ($model_name)"
+        echo "# Started: $(date)"
+        echo "# ======================================================================"
+        echo ""
+    } > "$log_file"
     
     echo ""
     echo "======================================================================"
@@ -171,6 +226,7 @@ run_model() {
     cmd+=" --model $model_name"
     cmd+=" --api-key $API_KEY"
     cmd+=" --max-turns $MAX_TURNS"
+    cmd+=" --log-dir $LOG_DIR"  # Pass log directory for raw_data storage
     
     # Add chain filter if specified
     if [[ -n "$CHAIN" ]]; then
@@ -185,17 +241,42 @@ run_model() {
         cmd+=" --eth-fork-url $ETH_FORK_URL"
     fi
     
+    # Add date filter if specified
+    if [[ -n "$MIN_DATE" ]]; then
+        cmd+=" -since $MIN_DATE"
+    fi
+    
+    # Add case list if specified
+    if [[ -n "$CASE_LIST" ]]; then
+        # Create temporary file with case IDs (add scone_ prefix if not present)
+        local case_file="${LOG_DIR}/case_list_${short_name}.txt"
+        echo "$CASE_LIST" | tr ',' '\n' | while read -r case_name; do
+            if [[ "$case_name" != scone_* ]]; then
+                echo "scone_$case_name"
+            else
+                echo "$case_name"
+            fi
+        done > "$case_file"
+        cmd+=" --case-ids $case_file"
+    fi
+    
     if [[ "$thinking" == "true" ]]; then
         cmd+=" --thinking --thinking-budget $THINKING_BUDGET"
     fi
     
+    # Add session timeout
+    cmd+=" --session-timeout $SESSION_TIMEOUT"
+    
+    # Add progress mode
+    cmd+=" --progress-mode $PROGRESS_MODE"
+    
     log "Starting: $model_name"
     
-    # Run with real-time output to both console and log file
+    # Run with real-time output to both console and log file (append mode)
     if command -v stdbuf &> /dev/null; then
-        stdbuf -oL -eL $cmd 2>&1 | tee "$log_file"
+        stdbuf -oL -eL $cmd 2>&1 | tee -a "$log_file"
     else
-        $cmd 2>&1 | tee "$log_file"
+        $cmd 2>&1 | tee -a "$log_file"
     fi
     
     local exit_code=${PIPESTATUS[0]}
@@ -241,6 +322,21 @@ show_help() {
     echo "  -bsc          Run only BSC chain cases"
     echo "  -eth          Run only Ethereum mainnet cases"
     echo ""
+    echo "Date Filter Options:"
+    echo "  -since YYYYMM Filter cases >= date (e.g., -since 202503 for 2025-03 onwards)"
+    echo ""
+    echo "Case Selection:"
+    echo "  -cases LIST   Run specific cases (comma-separated, e.g., -cases case1,case2,case3)"
+    echo ""
+    echo "Progress Display Mode (mutually exclusive):"
+    echo "  -time         Show progress as elapsed/total minutes (default)"
+    echo "  -turns        Show progress as turn/max_turns"
+    echo ""
+    echo "Timeout Options:"
+    echo "  -t MINUTES    Set session timeout in minutes (default: 60)"
+    echo "                When -t is set alone, turns limit is removed (time-only mode)"
+    echo "  -n TURNS      Set max turns per case (default: 100)"
+    echo ""
     echo "Other Options:"
     echo "  -b            Run in background (nohup)"
     echo "  --list, -l    List available models"
@@ -254,8 +350,11 @@ show_help() {
     echo "Examples:"
     echo "  $0 -b -all                      # Run all 400+ cases in background"
     echo "  $0 -b -bsc                      # Run only BSC cases in background"
+    echo "  $0 -b -all -t 30                # 30-minute timeout per case"
+    echo "  $0 -all -n 50                   # Max 50 turns per case"
     echo "  $0 -eth                         # Run only ETH cases"
     echo "  $0 -b -all claude-haiku-4.5     # Run specific model on all chains"
+    echo "  $0 -cases case1,case2,case3     # Run specific cases"
     echo ""
 }
 
@@ -266,12 +365,19 @@ show_help() {
 BACKGROUND=false
 MODELS_TO_RUN=()
 CHAIN_MODE=""  # "", "all", "bsc", "eth"
+DATE_MODE=""   # "", "since"
+MIN_DATE=""
+CASE_LIST=""   # Comma-separated list of cases
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -b|--background)
             BACKGROUND=true
             shift
+            ;;
+        -cases|--cases)
+            CASE_LIST="$2"
+            shift 2
             ;;
         -all|--all)
             CHAIN_MODE="all"
@@ -287,6 +393,38 @@ while [[ $# -gt 0 ]]; do
             CHAIN_MODE="eth"
             CHAIN="mainnet"
             shift
+            ;;
+        -since|--since)
+            DATE_MODE="since"
+            # Support YYYYMM or YYYY-MM format
+            SINCE_VAL="$2"
+            if [[ ${#SINCE_VAL} -eq 6 && "$SINCE_VAL" =~ ^[0-9]+$ ]]; then
+                # Convert YYYYMM to YYYY-MM
+                MIN_DATE="${SINCE_VAL:0:4}-${SINCE_VAL:4:2}"
+            else
+                MIN_DATE="$SINCE_VAL"
+            fi
+            shift 2
+            ;;
+        -time|--time)
+            PROGRESS_MODE="time"
+            shift
+            ;;
+        -turns|--turns)
+            PROGRESS_MODE="turns"
+            shift
+            ;;
+        -t|--timeout)
+            # Session timeout in minutes
+            SESSION_TIMEOUT=$(( $2 * 60 ))  # Convert minutes to seconds
+            SESSION_TIMEOUT_SET=true
+            shift 2
+            ;;
+        -n|--max-turns)
+            # Max turns per case
+            MAX_TURNS="$2"
+            MAX_TURNS_SET=true
+            shift 2
             ;;
         --list|-l)
             list_models
@@ -307,6 +445,12 @@ done
 if [[ -z "$CHAIN_MODE" ]]; then
     CHAIN_MODE="bsc"
     CHAIN="bsc"
+fi
+
+# If -t (timeout) is set but -n (max-turns) is not, use unlimited turns
+# This allows pure time-based control
+if [[ "$SESSION_TIMEOUT_SET" == true && "$MAX_TURNS_SET" == false ]]; then
+    MAX_TURNS=9999  # Effectively unlimited, controlled by timeout only
 fi
 
 # If no models specified, run all
@@ -330,16 +474,28 @@ fi
 
 # Background mode: restart script with nohup
 if [[ "$BACKGROUND" == true ]]; then
-    MASTER_LOG="${LOG_DIR}/master_${TIMESTAMP}.log"
+    MASTER_LOG="${LOG_DIR}/master.log"
     
     BG_CHAIN_DISPLAY="BSC only"
     [[ "$CHAIN_MODE" == "all" ]] && BG_CHAIN_DISPLAY="ALL chains (~400+ cases)"
     [[ "$CHAIN_MODE" == "eth" ]] && BG_CHAIN_DISPLAY="Ethereum mainnet only"
     
+    # Determine date filter display
+    BG_DATE_DISPLAY="all dates"
+    [[ -n "$MIN_DATE" ]] && BG_DATE_DISPLAY="cases >= $MIN_DATE"
+    
+    # Progress mode display
+    BG_PROGRESS_DISPLAY="time (elapsed/total minutes)"
+    [[ "$PROGRESS_MODE" == "turns" ]] && BG_PROGRESS_DISPLAY="turns (turn/max_turns)"
+    
     echo "======================================================================"
     echo "🔥 Starting in BACKGROUND mode"
     echo "======================================================================"
     echo "Chain Mode: $BG_CHAIN_DISPLAY"
+    echo "Date Filter: $BG_DATE_DISPLAY"
+    echo "Progress Mode: $BG_PROGRESS_DISPLAY"
+    echo "Max Turns: $MAX_TURNS"
+    echo "Session Timeout: $((SESSION_TIMEOUT / 60)) minutes"
     echo "Models: ${#MODELS_TO_RUN[@]}"
     echo "Master Log: $MASTER_LOG"
     echo "Score Summary: $SUMMARY_SCORE_FILE"
@@ -353,13 +509,25 @@ if [[ "$BACKGROUND" == true ]]; then
     [[ "$CHAIN_MODE" == "bsc" ]] && CHAIN_OPT="-bsc"
     [[ "$CHAIN_MODE" == "eth" ]] && CHAIN_OPT="-eth"
     
+    # Build date option for subprocess
+    DATE_OPT=""
+    [[ -n "$MIN_DATE" ]] && DATE_OPT="-since $MIN_DATE"
+    
+    # Build progress mode option for subprocess
+    PROGRESS_OPT=""
+    [[ "$PROGRESS_MODE" == "turns" ]] && PROGRESS_OPT="-turns"
+    [[ "$PROGRESS_MODE" == "time" ]] && PROGRESS_OPT="-time"
+    
+    # Build timeout options for subprocess
+    TIMEOUT_OPT="-t $((SESSION_TIMEOUT / 60)) -n $MAX_TURNS"
+    
     nohup bash -c "
         cd '$SCRIPT_DIR'
-        ./run_multi_model_bench.sh $CHAIN_OPT $MODEL_LIST
+        ./run_multi_model_bench.sh $CHAIN_OPT $DATE_OPT $PROGRESS_OPT $TIMEOUT_OPT $MODEL_LIST
     " > "$MASTER_LOG" 2>&1 &
     
     PID=$!
-    echo "$PID" > "${LOG_DIR}/master_${TIMESTAMP}.pid"
+    echo "$PID" > "${LOG_DIR}/master.pid"
     
     echo "✅ Started in background"
     echo "   PID: $PID"
@@ -391,13 +559,24 @@ CHAIN_MODE_DISPLAY="bsc only (default)"
 [[ "$CHAIN_MODE" == "bsc" ]] && CHAIN_MODE_DISPLAY="BSC only"
 [[ "$CHAIN_MODE" == "eth" ]] && CHAIN_MODE_DISPLAY="Ethereum mainnet only"
 
+# Determine date filter display
+DATE_FILTER_DISPLAY="all dates"
+[[ -n "$MIN_DATE" ]] && DATE_FILTER_DISPLAY="cases >= $MIN_DATE (recent only)"
+
+# Determine progress mode display
+PROGRESS_MODE_DISPLAY="time (elapsed/total minutes)"
+[[ "$PROGRESS_MODE" == "turns" ]] && PROGRESS_MODE_DISPLAY="turns (turn/max_turns)"
+
 echo ""
 echo "======================================================================"
 echo "🔥 EVM Hacker Bench - Multi-Model Runner"
 echo "======================================================================"
 echo "Timestamp: $TIMESTAMP"
 echo "Chain Mode: $CHAIN_MODE_DISPLAY"
+echo "Date Filter: $DATE_FILTER_DISPLAY"
+echo "Progress Mode: $PROGRESS_MODE_DISPLAY"
 echo "Max Turns: $MAX_TURNS"
+echo "Session Timeout: $((SESSION_TIMEOUT / 60)) minutes"
 echo "Models: ${#MODELS_TO_RUN[@]}"
 echo "BSC RPC: ${BSC_FORK_URL:0:50}..."
 echo "ETH RPC: ${ETH_FORK_URL:-not configured}"

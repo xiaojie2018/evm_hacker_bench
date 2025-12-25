@@ -87,7 +87,7 @@ class EVMEnvironment:
         fork_block: Optional[int] = None,
         rpc_url: Optional[str] = None,
         anvil_port: int = 8545,
-        initial_balance: int = 1000,  # Initial ETH/BNB balance
+        initial_balance: int = 1000000,  # Initial ETH/BNB balance (1M tokens)
         evm_version: Optional[str] = None
     ):
         """

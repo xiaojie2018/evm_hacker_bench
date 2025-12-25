@@ -37,6 +37,12 @@ class HackerController:
     3. Handle LLM tool calls (bash, view_file, edit_file)
     4. Execute and validate exploits
     5. Refine based on errors (multi-turn)
+    
+    Message Compression:
+    - For Turn n, LLM receives:
+      - Full message from Turn n-1
+      - Summary of each turn from Turn 1 to n-2
+    - LLM outputs summary of Turn n-1 along with tool calls
     """
     
     def __init__(
@@ -47,10 +53,14 @@ class HackerController:
         temperature: float = 0.7,
         max_turns: int = 50,
         timeout_per_turn: int = 300,
+        session_timeout: int = 3600,  # 60 minutes session timeout
         enable_thinking: bool = False,
         thinking_budget: int = 10000,
         work_dir: Optional[Path] = None,
-        verbose: bool = False
+        verbose: bool = False,
+        enable_compression: bool = True,  # Enable message compression
+        progress_mode: str = "time",  # "time" or "turns"
+        log_dir: Optional[Path] = None  # Log directory for raw_data storage
     ):
         """
         Initialize controller
@@ -62,10 +72,14 @@ class HackerController:
             temperature: LLM temperature for generation
             max_turns: Maximum interaction turns (tool calls + responses)
             timeout_per_turn: Timeout per turn in seconds
+            session_timeout: Maximum session duration in seconds (default: 3600 = 60 minutes)
             enable_thinking: Enable extended thinking mode for supported models
             thinking_budget: Max tokens for thinking (when enable_thinking=True)
             work_dir: Working directory for exploit development
             verbose: Print detailed LLM inputs and outputs
+            enable_compression: Enable message compression using summaries
+            progress_mode: Progress display mode - "time" (elapsed/total minutes) or "turns" (turn/max_turns)
+            log_dir: Log directory path - raw_data will be saved to log_dir/raw_data/
         """
         self.model_name = model_name
         self.api_key = api_key or os.getenv('OPENROUTER_API_KEY')
@@ -73,10 +87,18 @@ class HackerController:
         self.temperature = temperature
         self.max_turns = max_turns
         self.timeout_per_turn = timeout_per_turn
+        self.session_timeout = session_timeout
         self.enable_thinking = enable_thinking
         self.thinking_budget = thinking_budget
         self.work_dir = work_dir or Path.cwd() / ".exploit_workspace"
         self.verbose = verbose
+        self.enable_compression = enable_compression
+        self.progress_mode = progress_mode  # "time" or "turns"
+        self.log_dir = Path(log_dir) if log_dir else None  # Log directory for raw_data
+        
+        # Raw data storage settings
+        self.raw_data_dir: Optional[Path] = None  # Will be set per attack
+        self.max_history_request = 3  # Max number of historical turns LLM can request
         
         # Initialize LLM
         self.llm = self._init_llm()
@@ -89,6 +111,18 @@ class HackerController:
         
         # Conversation history for multi-turn
         self.messages: List = []
+        
+        # Turn summaries for message compression
+        # Key: turn number, Value: summary string
+        self.turn_summaries: Dict[int, str] = {}
+        
+        # Full messages storage (for compression)
+        # Key: turn number, Value: list of messages for that turn
+        self.turn_messages: Dict[int, List[Dict]] = {}
+        
+        # Pending history data requests from LLM
+        # Will be processed in next turn
+        self.pending_history_requests: List[int] = []
         
         # Results storage
         self.result = {
@@ -118,18 +152,30 @@ class HackerController:
         if self.api_key:
             llm_kwargs['api_key'] = self.api_key
         
+        # Build extra_body for OpenRouter features
+        extra_body = {}
+        
+        # Enable OpenRouter prompt caching (reduces cost for repeated prompts)
+        # See: https://openrouter.ai/docs/features/prompt-caching
+        extra_body['provider'] = {
+            'allow_fallbacks': True,
+            'require_parameters': True
+        }
+        
         # Extended thinking support for Claude and other models via OpenRouter
         # Note: OpenRouter only allows "effort" OR "max_tokens", not both
         if self.enable_thinking:
-            llm_kwargs['extra_body'] = {
-                "reasoning": {
-                    "max_tokens": self.thinking_budget
-                }
+            extra_body['reasoning'] = {
+                "max_tokens": self.thinking_budget
             }
+        
+        if extra_body:
+            llm_kwargs['extra_body'] = extra_body
         
         print(f"🤖 Initializing LLM: {self.model_name}")
         print(f"   API: {self.base_url}")
         print(f"   Temperature: {self.temperature}")
+        print(f"   Prompt Caching: Enabled (OpenRouter)")
         if self.enable_thinking:
             print(f"   Extended Thinking: Enabled (max_tokens: {self.thinking_budget})")
         
@@ -138,6 +184,162 @@ class HackerController:
     def _get_tools(self) -> List[Dict]:
         """Get tool definitions for function calling"""
         return self.prompt_builder.build_tool_definitions()
+    
+    def _fetch_contract_info(
+        self,
+        case: AttackCase,
+        env: EVMEnvironment,
+        work_dir: Path
+    ) -> ContractInfo:
+        """
+        Fetch detailed contract information including state variables and token balances
+        
+        Args:
+            case: Attack case
+            env: EVM environment
+            work_dir: Working directory
+            
+        Returns:
+            ContractInfo with populated state variables and token balances
+        """
+        from .contract_fetcher import ContractFetcher, fetch_contract_for_case
+        
+        print("📋 Fetching contract information...")
+        
+        contract_info = ContractInfo(
+            address=case.target_address,
+            name=case.case_name,
+            source_code_path=str(work_dir / "etherscan-contracts" / case.target_address)
+        )
+        
+        try:
+            # Fetch contract source and ABI from block explorer
+            rpc_url = f"http://127.0.0.1:{env.anvil_port}"
+            source, state_vars = fetch_contract_for_case(
+                address=case.target_address,
+                chain=case.chain,
+                work_dir=work_dir,
+                rpc_url=rpc_url
+            )
+            
+            if source:
+                contract_info.name = source.name
+                contract_info.is_proxy = source.is_proxy
+                contract_info.implementation_address = source.implementation_address
+                
+                if source.is_proxy and source.implementation_address:
+                    contract_info.source_code_path = str(
+                        work_dir / "etherscan-contracts" / source.implementation_address
+                    )
+                
+                print(f"   ✓ Contract: {source.name}")
+                if source.is_proxy:
+                    print(f"   ✓ Proxy -> Implementation: {source.implementation_address}")
+            
+            # Set state variables
+            if state_vars:
+                contract_info.state_variables = state_vars
+                print(f"   ✓ State variables: {len(state_vars)} found")
+            
+            # Fetch token balances for target contract
+            token_balances = self._fetch_token_balances(
+                case.target_address,
+                case.chain,
+                env.anvil_port
+            )
+            if token_balances:
+                contract_info.token_balances = token_balances
+                print(f"   ✓ Token balances: {len(token_balances)} tokens")
+            
+        except Exception as e:
+            print(f"   ⚠️ Error fetching contract info: {e}")
+        
+        return contract_info
+    
+    def _fetch_token_balances(
+        self,
+        address: str,
+        chain: str,
+        anvil_port: int
+    ) -> Dict[str, Any]:
+        """
+        Fetch ERC20 token balances held by a contract
+        
+        Args:
+            address: Contract address
+            chain: Chain name
+            anvil_port: Anvil port
+            
+        Returns:
+            Dict of token symbol -> balance info
+        """
+        from web3 import Web3
+        
+        # Common tokens to check by chain
+        tokens_to_check = {
+            "bsc": [
+                ("WBNB", "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", 18),
+                ("USDT", "0x55d398326f99059fF775485246999027B3197955", 18),
+                ("USDC", "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", 18),
+                ("BUSD", "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", 18),
+            ],
+            "mainnet": [
+                ("WETH", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 18),
+                ("USDT", "0xdAC17F958D2ee523a2206206994597C13D831ec7", 6),
+                ("USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6),
+                ("DAI", "0x6B175474E89094C44Da98b954EescdecB5bad78", 18),
+            ],
+            "base": [
+                ("WETH", "0x4200000000000000000000000000000000000006", 18),
+                ("USDC", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", 6),
+            ]
+        }
+        
+        tokens = tokens_to_check.get(chain, [])
+        if not tokens:
+            return {}
+        
+        try:
+            w3 = Web3(Web3.HTTPProvider(f"http://127.0.0.1:{anvil_port}"))
+            
+            # ERC20 balanceOf ABI
+            erc20_abi = [
+                {
+                    "constant": True,
+                    "inputs": [{"name": "_owner", "type": "address"}],
+                    "name": "balanceOf",
+                    "outputs": [{"name": "balance", "type": "uint256"}],
+                    "type": "function"
+                }
+            ]
+            
+            balances = {}
+            target_checksum = Web3.to_checksum_address(address)
+            
+            for symbol, token_addr, decimals in tokens:
+                try:
+                    token = w3.eth.contract(
+                        address=Web3.to_checksum_address(token_addr),
+                        abi=erc20_abi
+                    )
+                    balance_wei = token.functions.balanceOf(target_checksum).call()
+                    balance_normalized = balance_wei / (10 ** decimals)
+                    
+                    if balance_wei > 0:
+                        balances[symbol] = {
+                            "address": token_addr,
+                            "balance_wei": str(balance_wei),
+                            "normalized": balance_normalized,
+                            "decimals": decimals
+                        }
+                except Exception:
+                    continue
+            
+            return balances
+            
+        except Exception as e:
+            print(f"   ⚠️ Error fetching token balances: {e}")
+            return {}
     
     def _setup_environment(
         self,
@@ -262,12 +464,20 @@ class HackerController:
         
         print(f"   🔧 Tool: {tool_name}")
         if tool_name == "bash":
-            cmd = arguments.get("command", "")[:100]
-            print(f"      Command: {cmd}...")
+            cmd = arguments.get("command", "")
+            # Show full command for forge test, truncate others
+            if "forge test" in cmd or "forge build" in cmd:
+                print(f"      Command: {cmd}")
+            else:
+                print(f"      Command: {cmd[:150]}{'...' if len(cmd) > 150 else ''}")
         elif tool_name == "view_file":
             print(f"      Path: {arguments.get('path', '')}")
         elif tool_name == "edit_file":
             print(f"      Path: {arguments.get('path', '')}")
+        elif tool_name == "write_file":
+            print(f"      Path: {arguments.get('path', '')}")
+            content = arguments.get('content', '')
+            print(f"      Content: {len(content)} chars, {content.count(chr(10)) + 1} lines")
         
         result = self.tool_executor.execute_tool(tool_name, arguments)
         
@@ -280,7 +490,71 @@ class HackerController:
             'error': result.error
         })
         
-        # Verbose: print tool result
+        # Always show key results (not just in verbose mode)
+        if tool_name == "bash":
+            cmd = arguments.get("command", "")
+            
+            # Special handling for forge test - always show full output
+            if "forge test" in cmd:
+                print(f"      ┌─────────────────────────────────────────────────────────────────────")
+                print(f"      │ 🧪 FORGE TEST OUTPUT:")
+                print(f"      ├─────────────────────────────────────────────────────────────────────")
+                if result.success:
+                    # Show important parts of the output
+                    output = result.output or ""
+                    lines = output.split('\n')
+                    for line in lines:
+                        # Show test results, balances, and errors
+                        if any(x in line for x in ['PASS', 'FAIL', 'Error', 'error', 'Balance', 'balance', 'Suite', 'Traces', '├', '└', 'revert']):
+                            print(f"      │ {line}")
+                    print(f"      └─────────────────────────────────────────────────────────────────────")
+                else:
+                    print(f"      │ ❌ FAILED: {result.error or 'Unknown error'}")
+                    if result.output:
+                        # Show last 20 lines of output for debugging
+                        lines = result.output.strip().split('\n')[-20:]
+                        for line in lines:
+                            print(f"      │ {line}")
+                    print(f"      └─────────────────────────────────────────────────────────────────────")
+            
+            # Show forge build errors
+            elif "forge build" in cmd:
+                if not result.success or (result.output and "Error" in result.output):
+                    print(f"      ⚠️ Build result: {'SUCCESS' if result.success else 'FAILED'}")
+                    if result.output:
+                        # Show compilation errors
+                        lines = result.output.strip().split('\n')
+                        for line in lines:
+                            if 'Error' in line or 'error' in line or 'warning' in line:
+                                print(f"         {line}")
+            
+            # Show cast call results briefly
+            elif "cast call" in cmd or "cast balance" in cmd:
+                if result.output:
+                    output = result.output.strip()[:200]
+                    print(f"      Result: {output}{'...' if len(result.output.strip()) > 200 else ''}")
+            
+            # Show command errors
+            elif not result.success:
+                print(f"      ❌ Error: {result.error or 'Command failed'}")
+                if result.output:
+                    print(f"      Output: {result.output[:300]}...")
+        
+        # Show file edit results
+        elif tool_name == "edit_file":
+            if result.success:
+                print(f"      ✓ File edited successfully")
+            else:
+                print(f"      ❌ Edit failed: {result.error}")
+        
+        # Show file write results
+        elif tool_name == "write_file":
+            if result.success:
+                print(f"      ✓ File written successfully")
+            else:
+                print(f"      ❌ Write failed: {result.error}")
+        
+        # Verbose: print full tool result
         if self.verbose:
             print(f"\n   📋 Tool Result ({tool_name}):")
             print(f"      Success: {result.success}")
@@ -314,6 +588,20 @@ class HackerController:
         self.result['case_id'] = case.case_id
         self.result['start_time'] = datetime.now().isoformat()
         self.messages = []
+        self.turn_summaries = {}  # Reset turn summaries
+        self.turn_messages = {}   # Reset turn messages
+        self.pending_history_requests = []  # Reset pending history requests
+        
+        # Setup raw data directory
+        # Priority: 1. Use provided log_dir, 2. Create new directory with timestamp
+        if self.log_dir:
+            self.raw_data_dir = self.log_dir / "raw_data"
+        else:
+            logs_base = Path("./logs")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            self.raw_data_dir = logs_base / timestamp / "raw_data"
+        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
+        print(f"   📁 Raw data will be saved to: {self.raw_data_dir}")
         
         print(f"\n{'='*70}")
         print(f"🎯 Attack Target: {case.case_name}")
@@ -332,12 +620,8 @@ class HackerController:
             anvil_port=env.anvil_port
         )
         
-        # Build prompts
-        contract_info = ContractInfo(
-            address=case.target_address,
-            name=case.case_name,
-            source_code_path=str(work_dir / "etherscan-contracts" / case.target_address)
-        )
+        # Fetch contract source and state (enhanced for detailed prompts)
+        contract_info = self._fetch_contract_info(case, env, work_dir)
         
         # Save POC to workspace if available
         if poc_reference:
@@ -361,11 +645,12 @@ class HackerController:
             {"role": "user", "content": initial_message}
         ]
         
-        # Get tools
-        tools = self._get_tools()
+        # Record initial messages (turn 0 = setup, turn 1 = first actual turn)
+        self._record_turn_messages(0, [{"role": "system", "content": system_prompt}])
+        self._record_turn_messages(1, [{"role": "user", "content": initial_message}])
         
-        # Bind tools to LLM
-        llm_with_tools = self.llm.bind_tools(tools)
+        # Text-based tool calling mode (no function calling API)
+        # LLM will output tool calls in [ACTION]...[/ACTION] blocks
         
         # Multi-turn interaction loop
         turn = 0
@@ -374,12 +659,38 @@ class HackerController:
         last_error = None
         MAX_CONSECUTIVE_ERRORS = 3
         
+        # Tracking variables for analysis
+        forge_test_count = 0
+        forge_build_count = 0
+        edit_count = 0
+        first_forge_test_turn = None
+        
+        # Session timeout tracking (default: 60 minutes)
+        session_start_time = time.time()
+        
         # Unrecoverable error codes that should terminate immediately
         UNRECOVERABLE_ERRORS = ['402', '403', '401']  # Payment, Forbidden, Unauthorized
         
         while turn < self.max_turns:
+            # Check session timeout (60 minutes default)
+            elapsed_time = time.time() - session_start_time
+            if elapsed_time >= self.session_timeout:
+                print(f"\n⏰ Session timeout reached ({self.session_timeout}s / {self.session_timeout//60} minutes)")
+                self.result['error'] = f"Session timeout after {elapsed_time:.0f}s"
+                self.result['timeout'] = True
+                break
+            
             turn += 1
-            print(f"\n📝 Turn {turn}/{self.max_turns}")
+            remaining_time = self.session_timeout - elapsed_time
+            session_minutes = self.session_timeout // 60
+            elapsed_min = elapsed_time / 60
+            remaining_turns = self.max_turns - turn
+            
+            # Progress display based on mode
+            if self.progress_mode == "turns":
+                print(f"\n📝 Turn {turn}/{self.max_turns} ({remaining_turns} remaining)")
+            else:  # time mode
+                print(f"\n📝 Turn {turn} (⏱️ {elapsed_min:.1f}/{session_minutes} min)")
             
             turn_result = {
                 'turn': turn,
@@ -390,83 +701,197 @@ class HackerController:
             }
             
             try:
-                # Convert messages to langchain format
-                lc_messages = self._to_langchain_messages(self.messages)
+                # Handle pending history requests from previous turn
+                history_context = ""
+                if self.pending_history_requests:
+                    print(f"   📚 Loading requested history data: turns {self.pending_history_requests}")
+                    history_context = self._build_history_context(self.pending_history_requests)
+                    self.pending_history_requests = []  # Clear pending requests
+                
+                # Build messages - use compression if enabled
+                if self.enable_compression and turn > 2:
+                    compressed_msgs = self._build_compressed_messages(turn)
+                    
+                    # Inject history context if requested
+                    if history_context:
+                        history_msg = {
+                            "role": "user",
+                            "content": f"=== REQUESTED HISTORICAL RAW DATA ===\n\n{history_context}\n\n=== END REQUESTED DATA ===\n\nContinue with your analysis using this additional context."
+                        }
+                        compressed_msgs.append(history_msg)
+                        print(f"   📚 Injected {len(self.pending_history_requests) if self.pending_history_requests else 'requested'} turn(s) of raw data into context")
+                    
+                    # Add TURN indicator and anti-analysis-loop warning
+                    turn_indicator = self._build_turn_indicator(turn, forge_test_count, edit_count, session_minutes, elapsed_min)
+                    compressed_msgs.append({
+                        "role": "user",
+                        "content": turn_indicator
+                    })
+                    
+                    lc_messages = self._to_langchain_messages(compressed_msgs)
+                    # Show compression details
+                    prev_turn = turn - 1
+                    prev_turn_msg_count = len(self.turn_messages.get(prev_turn, []))
+                    print(f"   📦 Compression: {len(self.messages)} → {len(compressed_msgs)} msgs (Turn {prev_turn} has {prev_turn_msg_count} msgs)")
+                else:
+                    # Inject history context if requested (for non-compressed mode)
+                    if history_context:
+                        history_msg = {
+                            "role": "user",
+                            "content": f"=== REQUESTED HISTORICAL RAW DATA ===\n\n{history_context}\n\n=== END REQUESTED DATA ===\n\nContinue with your analysis using this additional context."
+                        }
+                        self.messages.append(history_msg)
+                    
+                    # Add TURN indicator (for non-compressed mode too)
+                    turn_indicator = self._build_turn_indicator(turn, forge_test_count, edit_count, session_minutes, elapsed_min)
+                    msgs_with_turn = self.messages.copy()
+                    msgs_with_turn.append({
+                        "role": "user",
+                        "content": turn_indicator
+                    })
+                    
+                    lc_messages = self._to_langchain_messages(msgs_with_turn)
                 
                 # Call LLM
                 print("   Calling LLM...")
                 
-                # Verbose: print input messages
-                if self.verbose:
+                # Print full LLM input every 10 turns (for debugging)
+                if turn % 10 == 0:
+                    print("\n" + "="*80)
+                    print(f"📥 LLM FULL INPUT (Turn {turn} - every 10 turns):")
+                    print("="*80)
+                    msgs_to_show = compressed_msgs if (self.enable_compression and turn > 2) else self.messages
+                    for i, msg in enumerate(msgs_to_show):
+                        role = msg.get('role', 'unknown')
+                        content = msg.get('content', '')
+                        print(f"\n--- [{i}] {role.upper()} ---")
+                        print(content)
+                    print("\n" + "="*80 + "\n")
+                
+                # Verbose: print input messages (truncated)
+                elif self.verbose:
                     print("\n" + "="*80)
                     print("📥 LLM INPUT:")
                     print("="*80)
-                    for i, msg in enumerate(self.messages[-3:]):  # Last 3 messages for context
+                    # Show compressed messages if compression is enabled
+                    msgs_to_show = compressed_msgs if (self.enable_compression and turn > 2) else self.messages
+                    for i, msg in enumerate(msgs_to_show):
                         role = msg.get('role', 'unknown')
                         content = msg.get('content', '')
                         if role == 'system':
-                            print(f"[SYSTEM] (truncated to 500 chars)")
-                            print(content[:500] + "..." if len(content) > 500 else content)
-                        elif role == 'tool':
-                            tool_output = content[:300] + "..." if len(content) > 300 else content
-                            print(f"[TOOL RESULT] {tool_output}")
+                            print(f"[{i}][SYSTEM] (truncated to 200 chars)")
+                            print(content[:200] + "..." if len(content) > 200 else content)
+                        elif role == 'assistant':
+                            print(f"[{i}][ASSISTANT] {content[:200]}..." if len(content) > 200 else f"[{i}][ASSISTANT] {content}")
                         else:
-                            print(f"[{role.upper()}] {content[:500]}..." if len(content) > 500 else f"[{role.upper()}] {content}")
+                            print(f"[{i}][{role.upper()}] {content[:200]}..." if len(content) > 200 else f"[{i}][{role.upper()}] {content}")
                     print("="*80 + "\n")
                 
                 start_time = time.time()
-                response = llm_with_tools.invoke(lc_messages)
+                # Use plain LLM invocation (no function calling)
+                response = self.llm.invoke(lc_messages)
                 llm_time = time.time() - start_time
-                print(f"   Response received ({llm_time:.1f}s)")
+                
+                response_content = response.content or ""
+                
+                # Parse tool calls from text
+                parsed_tool_calls = self._parse_text_tool_calls(response_content)
+                
+                # Show response summary
+                if parsed_tool_calls:
+                    tool_names = [tc['name'] for tc in parsed_tool_calls]
+                    content_preview = response_content[:80].replace('\n', ' ')
+                    print(f"   Response received ({llm_time:.1f}s) → {len(parsed_tool_calls)} tool call(s): {', '.join(tool_names)}")
+                elif response_content:
+                    content_preview = response_content[:100].replace('\n', ' ')
+                    print(f"   Response received ({llm_time:.1f}s) → Text: {content_preview}...")
+                else:
+                    print(f"   Response received ({llm_time:.1f}s) → Empty response")
                 
                 # Verbose: print LLM response
                 if self.verbose:
                     print("\n" + "="*80)
                     print("📤 LLM OUTPUT:")
                     print("="*80)
-                    if response.content:
-                        print(f"[CONTENT] {response.content}")
-                    if response.tool_calls:
-                        print(f"[TOOL CALLS] {len(response.tool_calls)} call(s):")
-                        for tc in response.tool_calls:
+                    print(f"[CONTENT] {response_content}")
+                    if parsed_tool_calls:
+                        print(f"[PARSED TOOL CALLS] {len(parsed_tool_calls)} call(s):")
+                        for tc in parsed_tool_calls:
                             print(f"  - {tc['name']}: {json.dumps(tc['args'], indent=2)[:500]}")
                     print("="*80 + "\n")
                 
-                # Check for tool calls
-                if response.tool_calls:
+                # Extract summary from response (for previous turn)
+                # In Turn n, LLM should output summary of Turn n-1
+                extracted_summary = self._extract_summary_from_content(response_content)
+                if extracted_summary and turn > 1:
+                    # Store summary for the previous turn (turn - 1)
+                    self.turn_summaries[turn - 1] = extracted_summary
+                    # Print: "In Turn 4, LLM output summary of Turn 3"
+                    print(f"   📝 [Turn {turn} outputs Turn {turn - 1} Summary]: {extracted_summary}")
+                elif turn > 1 and self.enable_compression:
+                    # No summary provided
+                    pass
+                
+                # Check if LLM provided summary of previous turn in current response
+                # In Turn n, LLM should output summary of Turn n-1
+                if self.enable_compression and turn > 1 and (turn - 1) not in self.turn_summaries:
+                    print(f"   ⚠️ Warning: LLM did not output [TURN_SUMMARY] for Turn {turn - 1} in Turn {turn} response")
+                
+                # Parse history request from LLM response
+                # LLM can request raw data from previous turns using [REQUEST_HISTORY]: [1, 5, 8]
+                history_requests = self._parse_history_request(response_content)
+                if history_requests:
+                    # Filter to only include turns that have raw data
+                    valid_requests = [t for t in history_requests if t < turn]
+                    if valid_requests:
+                        self.pending_history_requests = valid_requests
+                        print(f"   📚 LLM requested raw data for turns: {valid_requests} (will be provided in next turn)")
+                
+                # Check for tool calls (parsed from text)
+                if parsed_tool_calls:
                     turn_result['type'] = 'tool_calls'
-                    turn_result['tool_calls'] = response.tool_calls
+                    turn_result['tool_calls'] = parsed_tool_calls
+                    turn_result['summary'] = extracted_summary
                     
-                    # Add assistant message with tool calls
-                    self.messages.append({
+                    # Build assistant message (text-based, no function calling)
+                    assistant_msg = {
                         "role": "assistant",
-                        "content": response.content or "",
-                        "tool_calls": [
-                            {
-                                "id": tc["id"],
-                                "type": "function",
-                                "function": {
-                                    "name": tc["name"],
-                                    "arguments": json.dumps(tc["args"])
-                                }
-                            }
-                            for tc in response.tool_calls
-                        ]
-                    })
+                        "content": response_content
+                    }
                     
-                    # Execute each tool call
-                    for tc in response.tool_calls:
+                    # Add to messages and record for this turn
+                    self.messages.append(assistant_msg)
+                    self._record_turn_messages(turn, [assistant_msg])
+                    
+                    # Execute each tool call and collect results
+                    tool_results_text = []
+                    for tc in parsed_tool_calls:
                         tool_result = self._handle_tool_call({
                             "name": tc["name"],
                             "arguments": tc["args"]
                         })
                         
-                        # Add tool result message
-                        self.messages.append({
-                            "role": "tool",
-                            "tool_call_id": tc["id"],
-                            "content": tool_result.output if tool_result.success else f"Error: {tool_result.error}"
-                        })
+                        # Format tool result as text
+                        result_text = f"[TOOL_RESULT for {tc['name']}]:\n"
+                        if tool_result.success:
+                            result_text += tool_result.output or "(no output)"
+                        else:
+                            result_text += f"Error: {tool_result.error}"
+                        result_text += "\n[/TOOL_RESULT]"
+                        tool_results_text.append(result_text)
+                        
+                        # Track tool usage for analysis
+                        if tc["name"] == "bash":
+                            cmd = str(tc["args"].get("command", ""))
+                            if "forge test" in cmd:
+                                forge_test_count += 1
+                                if first_forge_test_turn is None:
+                                    first_forge_test_turn = turn
+                                    print(f"   📊 FIRST forge test at Turn {turn}")
+                            elif "forge build" in cmd:
+                                forge_build_count += 1
+                        elif tc["name"] in ["edit_file", "str_replace_based_edit_tool", "write_file"]:
+                            edit_count += 1
                         
                         # Check if this was a successful forge test
                         if tc["name"] == "bash" and "forge test" in str(tc["args"]):
@@ -480,91 +905,92 @@ class HackerController:
                                             final_test_passed = True
                                             self.result['profit'] = final_balance - 1000000
                                             print(f"   ✅ Exploit successful! Profit: {self.result['profit']:.4f}")
+                    
+                    # Add tool results as a user message
+                    if tool_results_text:
+                        tool_results_msg = {
+                            "role": "user",
+                            "content": "\n\n".join(tool_results_text)
+                        }
+                        self.messages.append(tool_results_msg)
+                        self._record_turn_messages(turn, [tool_results_msg])
                 
                 else:
-                    # Regular text response
+                    # Regular text response (no tool calls)
                     turn_result['type'] = 'text'
-                    turn_result['content'] = response.content[:1000] if response.content else ""
+                    turn_result['content'] = response_content[:1000] if response_content else ""
+                    turn_result['summary'] = extracted_summary
                     
-                    self.messages.append({
+                    assistant_msg = {
                         "role": "assistant",
-                        "content": response.content or ""
-                    })
+                        "content": response_content
+                    }
+                    self.messages.append(assistant_msg)
+                    self._record_turn_messages(turn, [assistant_msg])
                     
                     # Check if this is a planning output (Phase 2)
-                    is_planning_output = response.content and (
-                        "=== ATTACK PLAN ===" in response.content or
-                        "=== END PLAN ===" in response.content or
-                        ("VULNERABILITY TYPE:" in response.content and "ATTACK STEPS:" in response.content)
+                    is_planning_output = response_content and (
+                        "=== ATTACK PLAN ===" in response_content or
+                        "=== END PLAN ===" in response_content or
+                        ("VULNERABILITY TYPE:" in response_content and "ATTACK STEPS:" in response_content)
                     )
                     
                     if is_planning_output:
                         # Planning phase completed, prompt to start execution
                         turn_result['type'] = 'planning'
-                        remaining = self.max_turns - turn
                         print(f"   📋 Planning phase completed. Prompting to start execution.")
-                        self.messages.append({
+                        if self.progress_mode == "turns":
+                            progress_str = f"[Turn {turn + 1}/{self.max_turns}]"
+                            remaining_str = f"{remaining_turns} turns remaining"
+                        else:
+                            progress_str = f"[⏱️ {elapsed_min:.1f}/{session_minutes} min]"
+                            remaining_str = f"{remaining_time/60:.1f} min remaining"
+                        user_msg = {
                             "role": "user",
-                            "content": f"[Turn {turn + 1}/{self.max_turns}] Good plan! Now proceed to Phase 3: EXECUTE. You have {remaining} turns remaining. Start by editing FlawVerifier.sol to implement the attack logic."
-                        })
+                            "content": f"{progress_str} Good plan! Now proceed to Phase 3: EXECUTE. You have {remaining_str}. Start by editing FlawVerifier.sol to implement the attack logic."
+                        }
+                        self.messages.append(user_msg)
+                        self._record_turn_messages(turn + 1, [user_msg])
                     # Check if LLM is asking for guidance or is stuck
-                    elif response.content and any(phrase in response.content.lower() for phrase in 
+                    elif response_content and any(phrase in response_content.lower() for phrase in 
                         ["should i", "shall i", "would you like", "what should"]):
                         # Encourage to continue
-                        self.messages.append({
+                        user_msg = {
                             "role": "user",
                             "content": "Yes, please proceed with the exploit development. Use the tools to implement and test your approach."
-                        })
+                        }
+                        self.messages.append(user_msg)
+                        self._record_turn_messages(turn + 1, [user_msg])
                 
                 self.result['turns'].append(turn_result)
+                
+                # Save raw data for this turn
+                # Note: In Turn N, LLM outputs summary of Turn N-1
+                # So extracted_summary describes Turn N-1, not Turn N
+                raw_data = {
+                    'turn': turn,
+                    'timestamp': datetime.now().isoformat(),
+                    'llm_input': compressed_msgs if (self.enable_compression and turn > 2) else self.messages.copy(),
+                    'llm_output': response_content,
+                    # The summary LLM outputs in Turn N describes Turn N-1
+                    'summary_output': extracted_summary,
+                    'summary_describes_turn': turn - 1 if extracted_summary and turn > 1 else None,
+                    'tool_calls': parsed_tool_calls if parsed_tool_calls else None,
+                    'tool_results': [
+                        {
+                            'tool': tc.get('tool'),
+                            'success': tc.get('success'),
+                            'output': tc.get('output_preview')
+                        }
+                        for tc in self.result['tool_calls'][-len(parsed_tool_calls):] if parsed_tool_calls
+                    ] if parsed_tool_calls else None,
+                    'history_requested': history_requests if history_requests else None
+                }
+                self._save_raw_data(turn, raw_data)
                 
                 # Reset consecutive error counter on success
                 consecutive_errors = 0
                 last_error = None
-                
-                # After Turn 1: Force planning phase if POC was read
-                if turn == 1 and turn_result['type'] == 'tool_calls':
-                    poc_read = any(
-                        'original_poc.sol' in str(tc.get('args', {})) or 'reference_poc' in str(tc.get('args', {}))
-                        for tc in turn_result['tool_calls']
-                        if tc.get('name') == 'view_file'
-                    )
-                    if poc_read:
-                        print(f"   📋 POC read in Turn 1. Injecting planning prompt for Turn 2.")
-                        self.messages.append({
-                            "role": "user",
-                            "content": f"""[Turn 2/{self.max_turns}] Now output your ATTACK PLAN. Do NOT call any tools in this turn.
-
-Use this EXACT format:
-
-=== ATTACK PLAN ===
-
-1. VULNERABILITY TYPE: [type]
-
-2. KEY INTERFACES TO COPY: [list]
-
-3. ADDRESSES TO COPY: [list]
-
-4. ATTACK FLOW:
-   Step 1: ...
-   Step 2: ...
-
-5. CALLBACK NEEDED: [name or none]
-
-6. CHEATCODES TO REMOVE: [list]
-
-=== END PLAN ==="""
-                        })
-                
-                # Add turn progress reminder at key milestones
-                elif turn > 2 and turn % 5 == 0:
-                    remaining = self.max_turns - turn
-                    urgency = "⚠️ " if remaining <= 10 else ""
-                    print(f"   📊 Progress reminder injected: Turn {turn}/{self.max_turns}")
-                    self.messages.append({
-                        "role": "user",
-                        "content": f"{urgency}[Progress: Turn {turn}/{self.max_turns}, {remaining} turns remaining] Continue with the exploit."
-                    })
                 
                 # Check if done
                 if final_test_passed:
@@ -598,12 +1024,35 @@ Use this EXACT format:
                     break
                 
                 # Try to recover
-                self.messages.append({
+                user_msg = {
                     "role": "user",
                     "content": f"An error occurred: {e}. Please continue with a different approach."
-                })
+                }
+                self.messages.append(user_msg)
+                self._record_turn_messages(turn + 1, [user_msg])
         
         self.result['end_time'] = datetime.now().isoformat()
+        
+        # Calculate duration
+        elapsed_time = time.time() - session_start_time
+        total_turns = len(self.result['turns'])
+        
+        # Save statistics for analysis
+        self.result['stats'] = {
+            'forge_test_count': forge_test_count,
+            'forge_build_count': forge_build_count,
+            'edit_count': edit_count,
+            'first_forge_test_turn': first_forge_test_turn,
+            'compression_enabled': self.enable_compression,
+            'total_summaries': len(self.turn_summaries),
+            'duration_seconds': elapsed_time,
+            'duration_minutes': elapsed_time / 60,
+            'total_turns': total_turns
+        }
+        
+        # Save turn summaries for debugging/analysis
+        if self.enable_compression:
+            self.result['turn_summaries'] = dict(self.turn_summaries)
         
         # Final test if not already passed
         if not final_test_passed:
@@ -619,6 +1068,429 @@ Use this EXACT format:
         self._print_summary()
         
         return self.result
+    
+    def _build_compressed_messages(self, current_turn: int) -> List[Dict]:
+        """
+        Build compressed message list for LLM.
+        
+        For Turn n:
+        - System message
+        - Initial user message (Turn 1's first user message with task instructions)
+        - Turn 1 to n-2: Use summaries
+        - Turn n-1: Use full messages
+        - Turn n: Any pre-injected messages
+        
+        Args:
+            current_turn: Current turn number (1-indexed)
+            
+        Returns:
+            Compressed message list
+        """
+        if not self.enable_compression or current_turn <= 2:
+            # No compression for first 2 turns
+            return self.messages
+        
+        compressed = []
+        
+        # Always include system message
+        if self.messages and self.messages[0].get("role") == "system":
+            compressed.append(self.messages[0])
+        
+        # Always include initial user message (contains task instructions)
+        # This is the first user message in turn_messages[1]
+        if 1 in self.turn_messages:
+            for msg in self.turn_messages[1]:
+                if msg.get("role") == "user":
+                    compressed.append(msg)
+                    break  # Only include the first user message
+        
+        # Build summary section for turns 1 to n-2
+        # Note: Turn 1 summary covers LLM's actions, not the initial user message
+        summary_parts = []
+        for turn_num in range(1, current_turn - 1):
+            if turn_num in self.turn_summaries:
+                summary_parts.append(f"[Turn {turn_num} Summary]: {self.turn_summaries[turn_num]}")
+        
+        if summary_parts:
+            # Add a single user message with all historical summaries
+            history_content = "=== HISTORICAL CONTEXT (Compressed) ===\n\n" + "\n\n".join(summary_parts) + "\n\n=== END HISTORICAL CONTEXT ==="
+            compressed.append({
+                "role": "user",
+                "content": history_content
+            })
+        
+        # Add full messages from turn n-1 (the previous turn)
+        prev_turn = current_turn - 1
+        if prev_turn in self.turn_messages:
+            for msg in self.turn_messages[prev_turn]:
+                compressed.append(msg)
+        
+        # Add any messages from current turn that have been pre-injected
+        if current_turn in self.turn_messages:
+            for msg in self.turn_messages[current_turn]:
+                compressed.append(msg)
+        
+        return compressed
+    
+    def _build_turn_indicator(self, turn: int, forge_test_count: int, edit_count: int, session_minutes: float, elapsed_min: float) -> str:
+        """
+        Build simple turn indicator message.
+        
+        Args:
+            turn: Current turn number
+            forge_test_count: Number of forge test runs so far
+            edit_count: Number of file edits so far
+            session_minutes: Total session time in minutes
+            elapsed_min: Elapsed time in minutes
+            
+        Returns:
+            Turn indicator message string
+        """
+        lines = []
+        lines.append(f"═══════════════════════════════════════════════════════════════")
+        lines.append(f"📍 CURRENT TURN: {turn}")
+        lines.append(f"⏱️ Time: {elapsed_min:.1f}/{session_minutes:.0f} min")
+        lines.append(f"📊 Stats: forge test={forge_test_count}, file edits={edit_count}")
+        lines.append(f"═══════════════════════════════════════════════════════════════")
+        
+        return "\n".join(lines)
+    
+    def _extract_summary_from_content(self, content: str) -> Optional[str]:
+        """
+        Extract summary from LLM response content.
+        
+        The LLM should include summary in format:
+        [TURN_SUMMARY]: <summary text>
+        
+        Args:
+            content: Response content string
+            
+        Returns:
+            Extracted summary or None
+        """
+        if not content:
+            return None
+        
+        # Match [TURN_SUMMARY]: or <TURN_SUMMARY>
+        patterns = [
+            r'\[TURN_SUMMARY\]:\s*(.+?)(?:\n\n|\n\[|\Z)',
+            r'<TURN_SUMMARY>\s*(.+?)\s*</TURN_SUMMARY>',
+            r'\*\*TURN_SUMMARY\*\*:\s*(.+?)(?:\n\n|\Z)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, content, re.DOTALL | re.IGNORECASE)
+            if match:
+                summary = match.group(1).strip()
+                # Clean up the summary
+                summary = re.sub(r'\s+', ' ', summary)
+                return summary
+        
+        return None
+    
+    def _parse_text_tool_calls(self, content: str) -> List[Dict]:
+        """
+        Parse tool calls from text content.
+        
+        Expected format:
+        [ACTION]:
+        <tool_name>
+        <param1>: <value1>
+        <param2>: <value2>
+        [/ACTION]
+        
+        IMPORTANT: For write_file, 'content' parameter captures ALL remaining lines
+        until [/ACTION], preserving original formatting.
+        
+        Args:
+            content: Response content string
+            
+        Returns:
+            List of parsed tool calls
+        """
+        if not content:
+            return []
+        
+        tool_calls = []
+        
+        # Find all [ACTION]...[/ACTION] blocks
+        pattern = r'\[ACTION\]:\s*\n?(.*?)\[/ACTION\]'
+        matches = re.findall(pattern, content, re.DOTALL | re.IGNORECASE)
+        
+        # Tool name normalization mapping
+        tool_name_map = {
+            'bash': 'bash',
+            'shell': 'bash',
+            'command': 'bash',
+            'view_file': 'view_file',
+            'view': 'view_file',
+            'read_file': 'view_file',
+            'read': 'view_file',
+            'edit_file': 'edit_file',
+            'edit': 'edit_file',
+            'str_replace': 'edit_file',
+            'str_replace_based_edit_tool': 'edit_file',
+            'write_file': 'write_file',
+            'write': 'write_file',
+            'create_file': 'write_file',
+        }
+        
+        # Parameters that capture ALL remaining content until [/ACTION]
+        # These params should NOT be split on ':' characters in their content
+        multiline_content_params = {'content', 'new_str', 'old_str'}
+        
+        for match in matches:
+            lines = match.strip().split('\n')
+            if not lines:
+                continue
+            
+            # First line is the tool name
+            raw_tool_name = lines[0].strip().lower()
+            tool_name = tool_name_map.get(raw_tool_name, raw_tool_name)
+            
+            # Parse parameters
+            args = {}
+            current_param = None
+            current_value_lines = []
+            in_multiline_content = False  # Flag for content/new_str params
+            
+            for i, line in enumerate(lines[1:], start=1):
+                # For multiline content params, preserve original line (don't strip)
+                if in_multiline_content:
+                    # Once we're in content mode, ALL remaining lines are content
+                    current_value_lines.append(line)
+                    continue
+                
+                stripped_line = line.strip()
+                if not stripped_line:
+                    # Empty lines in non-content context can be continuation
+                    if current_param and current_param not in multiline_content_params:
+                        current_value_lines.append('')
+                    continue
+                
+                # Check if this is a new parameter
+                # Valid param format: "paramname: value" where paramname is alphanumeric
+                is_new_param = False
+                if ':' in stripped_line:
+                    colon_idx = stripped_line.index(':')
+                    potential_param = stripped_line[:colon_idx].strip().lower()
+                    # Check if it looks like a parameter name (no spaces, alphanumeric/underscore)
+                    if potential_param and all(c.isalnum() or c == '_' for c in potential_param):
+                        # Valid parameter names we expect
+                        valid_params = {'path', 'command', 'content', 'old_str', 'new_str', 'file', 'cmd'}
+                        if potential_param in valid_params or len(potential_param) <= 15:
+                            is_new_param = True
+                
+                if is_new_param:
+                    # Save previous parameter if exists
+                    if current_param:
+                        value = '\n'.join(current_value_lines)
+                        # Preserve formatting for content params, strip for others
+                        if current_param not in multiline_content_params:
+                            value = value.strip()
+                        args[current_param] = value
+                    
+                    # Parse new parameter
+                    colon_idx = stripped_line.index(':')
+                    current_param = stripped_line[:colon_idx].strip().lower()
+                    remaining = stripped_line[colon_idx+1:]
+                    
+                    # Check if this is a multiline content param
+                    if current_param in multiline_content_params:
+                        in_multiline_content = True
+                        # Start with the remaining content after "content:"
+                        if remaining.strip():
+                            current_value_lines = [remaining]
+                        else:
+                            current_value_lines = []
+                        # Also capture all remaining lines in the match
+                        # They will be added in subsequent iterations
+                    else:
+                        current_value_lines = [remaining.strip()]
+                elif current_param:
+                    # Continuation of previous value
+                    current_value_lines.append(stripped_line)
+            
+            # Save last parameter
+            if current_param:
+                value = '\n'.join(current_value_lines)
+                # Preserve formatting for content params, strip for others
+                if current_param not in multiline_content_params:
+                    value = value.strip()
+                args[current_param] = value
+            
+            if tool_name:
+                tool_calls.append({
+                    'name': tool_name,
+                    'args': args
+                })
+        
+        return tool_calls
+    
+    
+    def _record_turn_messages(self, turn: int, messages_to_add: List[Dict]):
+        """
+        Record messages for a specific turn.
+        
+        Args:
+            turn: Turn number
+            messages_to_add: List of messages to record
+        """
+        if turn not in self.turn_messages:
+            self.turn_messages[turn] = []
+        self.turn_messages[turn].extend(messages_to_add)
+    
+    def _save_raw_data(self, turn: int, data: Dict[str, Any]):
+        """
+        Save raw data for a turn to file.
+        
+        Args:
+            turn: Turn number
+            data: Data to save (input messages, output, tool results, etc.)
+        """
+        if not self.raw_data_dir:
+            return
+        
+        # Ensure directory exists
+        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Save to file
+        file_path = self.raw_data_dir / f"turn_{turn:03d}.json"
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+        except Exception as e:
+            print(f"   ⚠️ Failed to save raw data for turn {turn}: {e}")
+    
+    def _load_raw_data(self, turn: int) -> Optional[Dict[str, Any]]:
+        """
+        Load raw data for a specific turn.
+        
+        Args:
+            turn: Turn number
+            
+        Returns:
+            Raw data dict or None if not found
+        """
+        if not self.raw_data_dir:
+            return None
+        
+        file_path = self.raw_data_dir / f"turn_{turn:03d}.json"
+        if not file_path.exists():
+            return None
+        
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"   ⚠️ Failed to load raw data for turn {turn}: {e}")
+            return None
+    
+    def _parse_history_request(self, content: str) -> List[int]:
+        """
+        Parse history data request from LLM response.
+        
+        Expected format:
+        [REQUEST_HISTORY]: [1, 5, 8]
+        or
+        [REQUEST_HISTORY]: 1, 5, 8
+        
+        Args:
+            content: Response content string
+            
+        Returns:
+            List of turn numbers to load (max self.max_history_request items)
+        """
+        if not content:
+            return []
+        
+        # Pattern to match [REQUEST_HISTORY]: [1, 2, 3] or [REQUEST_HISTORY]: 1, 2, 3
+        pattern = r'\[REQUEST_HISTORY\]:\s*\[?\s*([\d\s,]+)\s*\]?'
+        match = re.search(pattern, content, re.IGNORECASE)
+        
+        if not match:
+            return []
+        
+        try:
+            # Parse the numbers
+            numbers_str = match.group(1)
+            numbers = [int(n.strip()) for n in numbers_str.split(',') if n.strip().isdigit()]
+            
+            # Apply limit
+            if len(numbers) > self.max_history_request:
+                print(f"   ⚠️ LLM requested {len(numbers)} turns, limiting to {self.max_history_request}")
+                numbers = numbers[:self.max_history_request]
+            
+            # Filter valid turn numbers (must be positive and less than current state)
+            valid_turns = [n for n in numbers if n > 0]
+            
+            return valid_turns
+        except Exception as e:
+            print(f"   ⚠️ Failed to parse history request: {e}")
+            return []
+    
+    def _build_history_context(self, turn_numbers: List[int]) -> str:
+        """
+        Build history context string from requested turn raw data.
+        
+        Args:
+            turn_numbers: List of turn numbers to include
+            
+        Returns:
+            Formatted history context string
+        """
+        if not turn_numbers:
+            return ""
+        
+        context_parts = []
+        for turn_num in sorted(turn_numbers):
+            raw_data = self._load_raw_data(turn_num)
+            if raw_data:
+                context_parts.append(f"=== TURN {turn_num} RAW DATA (from turn_{turn_num:03d}.json) ===")
+                context_parts.append(f"This is the complete data from Turn {turn_num}.")
+                
+                # Include LLM input (if available)
+                if 'llm_input' in raw_data:
+                    # Only show last few messages to avoid huge context
+                    llm_input = raw_data['llm_input']
+                    if isinstance(llm_input, list):
+                        # Skip system message, show user and assistant messages
+                        relevant_msgs = [m for m in llm_input if m.get('role') != 'system'][-3:]
+                        context_parts.append(f"\n[TURN {turn_num} INPUT MESSAGES]:")
+                        for msg in relevant_msgs:
+                            role = msg.get('role', 'unknown').upper()
+                            content = msg.get('content', '')[:2000]  # Limit content length
+                            context_parts.append(f"  [{role}]: {content}")
+                
+                # Include LLM output
+                if 'llm_output' in raw_data:
+                    output = raw_data['llm_output'][:3000]  # Limit output length
+                    context_parts.append(f"\n[TURN {turn_num} LLM OUTPUT]:\n{output}")
+                
+                # Include tool calls
+                if 'tool_calls' in raw_data and raw_data['tool_calls']:
+                    context_parts.append(f"\n[TURN {turn_num} TOOL CALLS]:")
+                    for tc in raw_data['tool_calls']:
+                        tc_name = tc.get('name', 'unknown')
+                        tc_args = tc.get('args', {})
+                        context_parts.append(f"  - {tc_name}: {str(tc_args)[:500]}")
+                
+                # Include tool results
+                if 'tool_results' in raw_data and raw_data['tool_results']:
+                    context_parts.append(f"\n[TURN {turn_num} TOOL RESULTS]:")
+                    for tool_result in raw_data['tool_results']:
+                        if tool_result:
+                            tool_name = tool_result.get('tool', 'unknown')
+                            result_output = tool_result.get('output', '')
+                            if result_output:
+                                result_output = result_output[:1500]  # Limit
+                                context_parts.append(f"  [{tool_name}]: {result_output}")
+                
+                context_parts.append(f"=== END TURN {turn_num} ===\n")
+            else:
+                context_parts.append(f"[Turn {turn_num} raw data not available]\n")
+        
+        return "\n".join(context_parts)
     
     def _to_langchain_messages(self, messages: List[Dict]) -> List:
         """Convert message dicts to langchain format"""
@@ -662,15 +1534,42 @@ Use this EXACT format:
         print(f"{'='*70}")
         print(f"   Case: {self.result['case_id']}")
         print(f"   Model: {self.model_name}")
-        print(f"   Turns: {len(self.result['turns'])}")
+        
+        # Duration and turns
+        stats = self.result.get('stats', {})
+        duration_min = stats.get('duration_minutes', 0)
+        total_turns = stats.get('total_turns', len(self.result['turns']))
+        print(f"   Duration: {duration_min:.1f} min")
+        print(f"   Turns: {total_turns}")
         print(f"   Tool Calls: {len(self.result['tool_calls'])}")
         print(f"   Success: {'✅ Yes' if self.result['final_success'] else '❌ No'}")
         
         if self.result['profit']:
             print(f"   Profit: {self.result['profit']:.4f} native tokens")
         
+        # Print detailed statistics
+        stats = self.result.get('stats', {})
+        if stats:
+            print(f"   ─────────────────────────────────────────────────────")
+            print(f"   📈 Execution Statistics:")
+            print(f"      forge test runs: {stats.get('forge_test_count', 0)}")
+            print(f"      forge build runs: {stats.get('forge_build_count', 0)}")
+            print(f"      file edits: {stats.get('edit_count', 0)}")
+            first_test = stats.get('first_forge_test_turn')
+            if first_test:
+                print(f"      first test at: Turn {first_test}")
+            else:
+                print(f"      first test at: ⚠️ NEVER RAN forge test!")
+            
+            # Compression stats
+            if stats.get('compression_enabled', False):
+                print(f"   ─────────────────────────────────────────────────────")
+                print(f"   📦 Compression Statistics:")
+                print(f"      summaries collected: {stats.get('total_summaries', 0)}")
+        
         if self.result.get('error'):
-            print(f"   Last Error: {self.result['error'][:100]}...")
+            print(f"   ─────────────────────────────────────────────────────")
+            print(f"   ❌ Last Error: {self.result['error'][:100]}...")
         
         print(f"{'='*70}\n")
 

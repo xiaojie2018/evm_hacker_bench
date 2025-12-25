@@ -110,6 +110,11 @@ class ToolExecutor:
                     arguments.get("old_str", ""),
                     arguments.get("new_str", "")
                 )
+            elif tool_name == "write_file":
+                result = self._write_file(
+                    arguments.get("path", ""),
+                    arguments.get("content", "")
+                )
             else:
                 result = ToolResult(
                     success=False,
@@ -285,9 +290,91 @@ class ToolExecutor:
         
         return output
     
+    def _write_file(self, path: str, content: str) -> ToolResult:
+        """
+        Write entire file content (reliable file creation/overwrite)
+        
+        This is the PREFERRED method for creating or replacing files.
+        Unlike edit_file, this always succeeds if the path is valid.
+        
+        Args:
+            path: Path to file
+            content: Complete file content to write
+            
+        Returns:
+            ToolResult indicating success
+        """
+        if not path:
+            return ToolResult(
+                success=False,
+                output="",
+                error="No path provided"
+            )
+        
+        if content is None:
+            return ToolResult(
+                success=False,
+                output="",
+                error="No content provided"
+            )
+        
+        # Resolve path
+        if path.startswith("/"):
+            full_path = Path(path)
+        else:
+            full_path = self.work_dir / path
+        
+        # Create parent directories
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            # Check if file exists before writing
+            existed = full_path.exists()
+            old_size = full_path.stat().st_size if existed else 0
+            
+            # Write the file
+            full_path.write_text(content, encoding='utf-8')
+            
+            # Verify the write succeeded
+            new_size = full_path.stat().st_size
+            new_content = full_path.read_text(encoding='utf-8')
+            
+            if new_content != content:
+                return ToolResult(
+                    success=False,
+                    output="",
+                    error="File write verification failed: content mismatch"
+                )
+            
+            # Count lines for feedback
+            line_count = content.count('\n') + 1
+            action = "overwritten" if existed else "created"
+            
+            # Show first and last few lines as preview
+            lines = content.split('\n')
+            if len(lines) <= 10:
+                preview = content
+            else:
+                preview = '\n'.join(lines[:5]) + f"\n... ({len(lines) - 10} lines omitted) ...\n" + '\n'.join(lines[-5:])
+            
+            return ToolResult(
+                success=True,
+                output=f"✅ File {action}: {path}\n   Lines: {line_count}\n   Size: {new_size} bytes\n\n--- Preview ---\n{preview}\n--- End Preview ---"
+            )
+            
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                output="",
+                error=f"Failed to write file: {str(e)}"
+            )
+    
     def _edit_file(self, path: str, old_str: str, new_str: str) -> ToolResult:
         """
-        Edit a file
+        Edit a file using string replacement
+        
+        NOTE: For creating new files or replacing entire file content,
+        use write_file instead - it's more reliable.
         
         Args:
             path: Path to file
@@ -322,27 +409,40 @@ class ToolExecutor:
         
         try:
             if not full_path.exists() or not old_str:
-                # Create new file or overwrite
+                # For new files, recommend write_file instead
+                # But still support it for backwards compatibility
                 full_path.write_text(new_str, encoding='utf-8')
                 action = "created" if not full_path.exists() else "written"
                 return ToolResult(
                     success=True,
-                    output=f"File {action}: {path}"
+                    output=f"File {action}: {path}\n\n💡 TIP: Use write_file tool for creating new files - it's more reliable."
                 )
             else:
                 # Replace string
                 content = full_path.read_text(encoding='utf-8')
                 
                 if old_str not in content:
+                    # Provide helpful error with file preview
+                    lines = content.split('\n')
+                    preview = '\n'.join(lines[:20]) if len(lines) > 20 else content
                     return ToolResult(
                         success=False,
-                        output="",
-                        error=f"String not found in file: {old_str[:100]}..."
+                        output=f"Current file content (first 20 lines):\n{preview}",
+                        error=f"String not found in file. Check exact whitespace and content.\nSearching for: {old_str[:100]}..."
                     )
                 
                 # Replace (only first occurrence for safety)
                 new_content = content.replace(old_str, new_str, 1)
                 full_path.write_text(new_content, encoding='utf-8')
+                
+                # Verify the edit
+                verify_content = full_path.read_text(encoding='utf-8')
+                if new_str not in verify_content:
+                    return ToolResult(
+                        success=False,
+                        output="",
+                        error="Edit verification failed: new content not found in file"
+                    )
                 
                 # Show snippet of change
                 snippet_start = max(0, new_content.find(new_str[:50]) - 100)
@@ -351,7 +451,7 @@ class ToolExecutor:
                 
                 return ToolResult(
                     success=True,
-                    output=f"File edited: {path}\n\nSnippet around change:\n{snippet}"
+                    output=f"✅ File edited: {path}\n\nSnippet around change:\n{snippet}"
                 )
                 
         except Exception as e:

@@ -308,6 +308,30 @@ class CaseLoader:
         print(f"✓ Loaded {len(cases)} cases from JSON")
         return cases
     
+    def load_bundled_cases(self, data_dir: Path = None) -> List[AttackCase]:
+        """
+        Load cases from bundled JSON data (no external dependencies)
+        
+        Args:
+            data_dir: Path to data directory containing cases.json
+                      Defaults to evm_hacker_bench/data/
+        
+        Returns:
+            List of loaded cases
+        """
+        if data_dir is None:
+            # Default: look in the package's data directory
+            data_dir = Path(__file__).parent.parent / "data"
+        
+        cases_json = data_dir / "cases.json"
+        
+        if not cases_json.exists():
+            print(f"⚠️  Bundled cases not found at: {cases_json}")
+            print("   Run 'python test/export_cases_to_json.py' to generate it")
+            return []
+        
+        return self.load_json(cases_json)
+    
     def save_json(self, output_path: Path):
         """Save all loaded cases to JSON"""
         output_path = Path(output_path)
@@ -326,6 +350,7 @@ class CaseLoader:
     def enrich_with_poc(self, defihacklabs_dir: Path) -> int:
         """
         Try to match and enrich cases with DeFiHackLabs POC files
+        Also extracts attack_date from POC file path (e.g., 2024-01/)
         
         Args:
             defihacklabs_dir: Path to DeFiHackLabs test directory
@@ -337,39 +362,62 @@ class CaseLoader:
         if not defihacklabs_dir.exists():
             return 0
         
-        # Build a map of case names to POC files
-        poc_map = {}
+        # Build a map of case names to POC files and their dates
+        poc_map = {}  # name -> (file, date)
         sol_files = list(defihacklabs_dir.rglob("*.sol"))
         sol_files = [f for f in sol_files if "Zone.Identifier" not in f.name]
         
         for sol_file in sol_files:
             # Extract case name from filename
             name = sol_file.stem.replace('_exp', '').lower()
-            poc_map[name] = sol_file
+            # Also create normalized version (remove underscores, spaces)
+            normalized = name.replace('_', '').replace(' ', '')
+            
+            # Extract date from parent directory (e.g., 2024-01)
+            parent_name = sol_file.parent.name
+            date_match = re.match(r'(\d{4}-\d{2})', parent_name)
+            attack_date = date_match.group(1) if date_match else None
+            
+            poc_map[name] = (sol_file, attack_date)
+            if normalized != name:
+                poc_map[normalized] = (sol_file, attack_date)
         
         enriched_count = 0
         for case in self.cases:
-            if case.poc_file:
-                continue  # Already has POC
+            if case.poc_file and case.attack_date:
+                continue  # Already fully enriched
             
             # Try to find matching POC
             case_name_lower = case.case_name.lower()
+            # Normalized version (remove underscores, spaces)
+            case_normalized = case_name_lower.replace('_', '').replace(' ', '')
+            matched_poc = None
+            matched_date = None
             
             # Direct match
             if case_name_lower in poc_map:
-                case.poc_file = str(poc_map[case_name_lower])
-                enriched_count += 1
-                continue
-            
+                matched_poc, matched_date = poc_map[case_name_lower]
+            elif case_normalized in poc_map:
+                matched_poc, matched_date = poc_map[case_normalized]
+            else:
             # Fuzzy match: check if case name contains POC name or vice versa
-            for poc_name, poc_file in poc_map.items():
-                if poc_name in case_name_lower or case_name_lower in poc_name:
-                    case.poc_file = str(poc_file)
-                    enriched_count += 1
+                for poc_name, (poc_file, poc_date) in poc_map.items():
+                    poc_normalized = poc_name.replace('_', '').replace(' ', '')
+                    if (poc_name in case_name_lower or case_name_lower in poc_name or
+                        poc_normalized in case_normalized or case_normalized in poc_normalized):
+                        matched_poc = poc_file
+                        matched_date = poc_date
                     break
+            
+            if matched_poc:
+                if not case.poc_file:
+                    case.poc_file = str(matched_poc)
+                if not case.attack_date and matched_date:
+                    case.attack_date = matched_date
+                enriched_count += 1
         
         if enriched_count > 0:
-            print(f"✓ Enriched {enriched_count} cases with POC files")
+            print(f"✓ Enriched {enriched_count} cases with POC files and dates")
         return enriched_count
     
     def filter_by_chain(self, chain: str) -> List[AttackCase]:

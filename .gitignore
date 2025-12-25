@@ -147,6 +147,7 @@ scripts/
 # - Dockerfile                        (container)
 # - docker-compose.yml                (container)
 # - config/                           (configuration)
+# - data/cases.json                   (bundled attack cases)
 # - evm_hacker_bench/*.py             (core modules, except test_*)
 # - evm_hacker_bench/tools/           (tool implementations)
 # - README.md                         (documentation)

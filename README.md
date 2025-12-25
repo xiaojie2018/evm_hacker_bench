@@ -67,54 +67,28 @@ EVM Hacker Bench is a benchmark framework that evaluates Large Language Models' 
    pip install -r requirements.txt
    ```
 
-### Dataset Setup (Required)
+### Dataset
 
-The benchmark requires attack case datasets. You need to set up at least one of the following:
+**The benchmark includes 400+ bundled attack cases with reference POCs** - no external setup required!
 
-#### Option 1: DeFiHackLabs (Recommended, 400+ cases)
+All data is self-contained in the repository:
+- `data/cases.json` - Attack case metadata (target addresses, fork blocks, etc.)
+- `test/.exploit_workspace/*/reference_poc/` - Reference POC files for each case
 
-```bash
-# Create the external data directory
-mkdir -p ../git-repo-outside
+Data sources (already integrated):
+- [DeFiHackLabs](https://github.com/SunWeb3Sec/DeFiHackLabs) - Real-world exploit POCs
+- [SCONE-bench](https://github.com/scone-bench/scone-bench) - Benchmark cases
 
-# Clone DeFiHackLabs repository
-git clone https://github.com/SunWeb3Sec/DeFiHackLabs.git ../git-repo-outside/DeFiHackLabs-main
-```
-
-Expected directory structure:
-```
-your-workspace/
-├── evm_hacker_bench/          # This project
-│   ├── run_hacker_bench.py
-│   └── ...
-└── git-repo-outside/
-    └── DeFiHackLabs-main/
-        └── src/
-            └── test/          # POC files (*.sol)
-                ├── 2024-01/
-                ├── 2024-02/
-                └── ...
-```
-
-#### Option 2: SCONE-bench
+#### Using Bundled Data (Default)
 
 ```bash
-# Clone SCONE-bench repository
-git clone https://github.com/scone-bench/scone-bench.git ../git-repo-outside/SCONE-bench-main
+# Just run - uses bundled cases automatically
+python run_hacker_bench.py --model anthropic/claude-haiku-4.5 --chain bsc
 ```
 
-Expected directory structure:
-```
-your-workspace/
-├── evm_hacker_bench/
-└── git-repo-outside/
-    └── SCONE-bench-main/
-        └── benchmark.csv      # Case definitions
-```
+#### Custom Dataset
 
-#### Option 3: Custom Dataset
-
-You can also provide your own dataset in JSON format:
+You can also provide your own dataset:
 
 ```bash
 python run_hacker_bench.py --dataset custom --custom-cases /path/to/your/cases.json
@@ -128,7 +102,8 @@ JSON format:
     "case_name": "Example Exploit",
     "chain": "bsc",
     "target_address": "0x...",
-    "fork_block": 12345678
+    "fork_block": 12345678,
+    "attack_date": "2025-03"
   }
 ]
 ```
@@ -224,7 +199,7 @@ The script provides:
 python run_hacker_bench.py [OPTIONS]
 
 Dataset Options:
-  --dataset {scone,defihacklabs,all,custom}  Dataset source (default: scone)
+  --dataset {bundled,scone,defihacklabs,all,custom}  Dataset source (default: bundled)
   --custom-cases PATH                        Path to custom JSON cases file
   --chain CHAIN                              Filter by chain (bsc, mainnet, etc.)
   --case CASE                                Run single case by ID
@@ -239,8 +214,9 @@ Model Options:
   --thinking-budget N                        Max thinking tokens (default: 10000)
 
 Execution Options:
-  --max-turns N                              Max conversation turns (default: 30)
-  --timeout N                                Timeout per case in seconds
+  --max-turns N                              Max conversation turns (default: 50)
+  --timeout N                                Timeout per turn in seconds (default: 300)
+  --session-timeout N                        Max session duration in seconds (default: 3600 = 60 min)
   --output-dir DIR                           Output directory for results
 
 RPC Options:
@@ -268,6 +244,15 @@ evm_hacker_bench/
 ├── requirements.txt                 # Python dependencies
 ├── Dockerfile                       # Container setup
 ├── docker-compose.yml               # Docker compose config
+│
+├── data/
+│   └── cases.json                   # Bundled attack cases (400+)
+│
+├── test/
+│   └── .exploit_workspace/          # Per-case workspace
+│       └── scone_<case_name>/
+│           └── reference_poc/       # Reference POC files
+│               └── original_poc.sol
 │
 ├── config/
 │   ├── system_config.json           # System prompt templates
@@ -326,9 +311,8 @@ docker-compose up
 docker run -it \
     -e OPENROUTER_API_KEY=$OPENROUTER_API_KEY \
     -e BSC_FORK_URL=$BSC_FORK_URL \
-    -v /path/to/DeFiHackLabs:/data/DeFiHackLabs \
     evm-hacker-bench \
-    python run_hacker_bench.py --model anthropic/claude-haiku-4.5 --dataset defihacklabs
+    python run_hacker_bench.py --model anthropic/claude-haiku-4.5 --chain bsc
 ```
 
 ## Supported Models
