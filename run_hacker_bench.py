@@ -393,7 +393,7 @@ def run_benchmark(args):
         if args.fork_url:
             print(f"Custom Fork URL: {args.fork_url}")
         print(f"Console Log: {console_log_file}")
-        
+    
         # Setup explorer API keys
         configured_keys = setup_explorer_api_keys(args)
         if configured_keys:

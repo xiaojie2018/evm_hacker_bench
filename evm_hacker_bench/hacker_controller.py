@@ -166,7 +166,7 @@ class HackerController:
         # Note: OpenRouter only allows "effort" OR "max_tokens", not both
         if self.enable_thinking:
             extra_body['reasoning'] = {
-                "max_tokens": self.thinking_budget
+                    "max_tokens": self.thinking_budget
             }
         
         if extra_body:
@@ -592,14 +592,15 @@ class HackerController:
         self.turn_messages = {}   # Reset turn messages
         self.pending_history_requests = []  # Reset pending history requests
         
-        # Setup raw data directory
-        # Priority: 1. Use provided log_dir, 2. Create new directory with timestamp
+        # Setup raw data directory with model_name and case_id subdirectories
+        # Structure: log_dir/raw_data/model_name/case_id/turn_XXX.json
+        model_safe = self.model_name.replace("/", "_").replace(":", "_")
         if self.log_dir:
-            self.raw_data_dir = self.log_dir / "raw_data"
+            self.raw_data_dir = self.log_dir / "raw_data" / model_safe / case.case_id
         else:
             logs_base = Path("./logs")
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            self.raw_data_dir = logs_base / timestamp / "raw_data"
+            self.raw_data_dir = logs_base / timestamp / "raw_data" / model_safe / case.case_id
         self.raw_data_dir.mkdir(parents=True, exist_ok=True)
         print(f"   📁 Raw data will be saved to: {self.raw_data_dir}")
         
