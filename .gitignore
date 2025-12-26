@@ -8,12 +8,18 @@ test/
 tests/
 
 # ==== Workspace & Runtime Data ====
-# Exploit workspace - keep reference_poc, exclude test artifacts
+# Exploit workspace - keep reference_poc, exclude runtime artifacts
 # Note: reference_poc/ contains the actual POC files to be committed
+# Runtime artifacts (flaw_verifier, etherscan-contracts) are generated during testing
+data/exploit_workspace/*/flaw_verifier/
+data/exploit_workspace/*/etherscan-contracts/
+data/exploit_workspace/*/temp_*
+data/exploit_workspace/*/*.sh
+
+# Legacy workspace paths (if still used)
 .exploit_workspace/*/flaw_verifier/
 .exploit_workspace/*/etherscan-contracts/
-.exploit_workspace/*/temp_*
-.exploit_workspace/*/*.sh
+test/.exploit_workspace/
 
 # Results and outputs
 results/

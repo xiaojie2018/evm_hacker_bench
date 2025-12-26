@@ -90,7 +90,13 @@ class HackerController:
         self.session_timeout = session_timeout
         self.enable_thinking = enable_thinking
         self.thinking_budget = thinking_budget
-        self.work_dir = work_dir or Path.cwd() / ".exploit_workspace"
+        # Default work_dir: data/exploit_workspace (contains reference POCs)
+        if work_dir:
+            self.work_dir = work_dir
+        else:
+            # Find project root (where data/ directory exists)
+            project_root = Path(__file__).parent.parent
+            self.work_dir = project_root / "data" / "exploit_workspace"
         self.verbose = verbose
         self.enable_compression = enable_compression
         self.progress_mode = progress_mode  # "time" or "turns"
@@ -99,6 +105,9 @@ class HackerController:
         # Raw data storage settings
         self.raw_data_dir: Optional[Path] = None  # Will be set per attack
         self.max_history_request = 3  # Max number of historical turns LLM can request
+        
+        # Check if model is Claude (requires explicit cache_control for prompt caching)
+        self.is_claude_model = self._is_claude_model()
         
         # Initialize LLM
         self.llm = self._init_llm()
@@ -175,11 +184,19 @@ class HackerController:
         print(f"🤖 Initializing LLM: {self.model_name}")
         print(f"   API: {self.base_url}")
         print(f"   Temperature: {self.temperature}")
-        print(f"   Prompt Caching: Enabled (OpenRouter)")
+        if self.is_claude_model:
+            print(f"   Prompt Caching: Enabled (Claude cache_control)")
+        else:
+            print(f"   Prompt Caching: Enabled (OpenRouter auto)")
         if self.enable_thinking:
             print(f"   Extended Thinking: Enabled (max_tokens: {self.thinking_budget})")
         
         return ChatOpenAI(**llm_kwargs)
+    
+    def _is_claude_model(self) -> bool:
+        """Check if the model is a Claude model (requires explicit cache_control)"""
+        model_lower = self.model_name.lower()
+        return 'anthropic/' in model_lower or 'claude' in model_lower
     
     def _get_tools(self) -> List[Dict]:
         """Get tool definitions for function calling"""
@@ -1494,17 +1511,49 @@ class HackerController:
         return "\n".join(context_parts)
     
     def _to_langchain_messages(self, messages: List[Dict]) -> List:
-        """Convert message dicts to langchain format"""
+        """Convert message dicts to langchain format
+        
+        For Claude models, adds cache_control to system message for prompt caching.
+        See: https://openrouter.ai/docs/features/prompt-caching
+        """
         lc_messages = []
         
-        for msg in messages:
+        for i, msg in enumerate(messages):
             role = msg.get("role", "")
             content = msg.get("content", "")
             
             if role == "system":
-                lc_messages.append(SystemMessage(content=content))
+                # For Claude models, use content blocks format with cache_control
+                # This enables OpenRouter prompt caching for Claude
+                if self.is_claude_model:
+                    # Convert to content blocks format with cache_control
+                    system_msg = SystemMessage(
+                        content=[
+                            {
+                                "type": "text",
+                                "text": content,
+                                "cache_control": {"type": "ephemeral"}
+                            }
+                        ]
+                    )
+                    lc_messages.append(system_msg)
+                else:
+                    lc_messages.append(SystemMessage(content=content))
             elif role == "user":
-                lc_messages.append(HumanMessage(content=content))
+                # For Claude, also cache the first user message (task instructions)
+                if self.is_claude_model and i == 1:  # First user message after system
+                    user_msg = HumanMessage(
+                        content=[
+                            {
+                                "type": "text",
+                                "text": content,
+                                "cache_control": {"type": "ephemeral"}
+                            }
+                        ]
+                    )
+                    lc_messages.append(user_msg)
+                else:
+                    lc_messages.append(HumanMessage(content=content))
             elif role == "assistant":
                 if msg.get("tool_calls"):
                     # Assistant message with tool calls

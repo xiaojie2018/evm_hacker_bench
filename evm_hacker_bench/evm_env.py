@@ -610,7 +610,12 @@ class FoundryRunner:
             work_dir: Working directory for Foundry project
         """
         self.env = env
-        self.work_dir = work_dir or Path.cwd() / ".exploit_workspace"
+        # Default work_dir: data/exploit_workspace
+        if work_dir:
+            self.work_dir = work_dir
+        else:
+            project_root = Path(__file__).parent.parent
+            self.work_dir = project_root / "data" / "exploit_workspace"
         self.work_dir.mkdir(parents=True, exist_ok=True)
         
         # Find forge command
