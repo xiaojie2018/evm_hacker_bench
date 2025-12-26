@@ -1,0 +1,2 @@
+# This directory contains bundled attack case data
+# Run test/export_cases_to_json.py to regenerate cases.json

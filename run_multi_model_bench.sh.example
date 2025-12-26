@@ -71,6 +71,11 @@ SESSION_TIMEOUT_SET=false  # Track if -t was explicitly set
 THINKING_BUDGET=2000
 PROGRESS_MODE="time"  # "time" or "turns"
 
+# Native token prices in USD (for profit calculation)
+# Update these values based on current market prices
+BNB_PRICE_USD=700    # BNB price in USD
+ETH_PRICE_USD=3500   # ETH price in USD
+
 # ============================================================================
 # Model List - CUSTOMIZE YOUR MODELS HERE
 # ============================================================================
@@ -110,16 +115,18 @@ init_summary() {
 =====================================================================
 EVM Hacker Bench - Model Success Rate Summary
 Timestamp: $(date '+%Y-%m-%d %H:%M:%S')
+Token Prices: BNB=\$${BNB_PRICE_USD}, ETH=\$${ETH_PRICE_USD}
 =====================================================================
 
-$(printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-10s | %-10s\n" "Model" "Success" "Total" "Rate" "Total Profit" "Avg Time" "Avg Turns")
-$(printf "%-40s-|----------|----------|------------|----------------|------------|----------\n" "----------------------------------------")
+$(printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-15s | %-10s | %-10s\n" "Model" "Success" "Total" "Rate" "Profit (Token)" "Profit (USD)" "Avg Time" "Avg Turns")
+$(printf "%-40s-|----------|----------|------------|----------------|----------------|------------|----------\n" "----------------------------------------")
 EOF
 
     cat > "$SUMMARY_DETAIL_FILE" << EOF
 =====================================================================
 EVM Hacker Bench - Task Execution Details
 Timestamp: $(date '+%Y-%m-%d %H:%M:%S')
+Token Prices: BNB=\$${BNB_PRICE_USD}, ETH=\$${ETH_PRICE_USD}
 =====================================================================
 EOF
 }
@@ -152,6 +159,14 @@ save_results() {
         awk '{sum += $1} END {printf "%.4f", sum}' 2>/dev/null | tr -d '\n' || true)
     [[ -z "$total_profit" ]] && total_profit="0.0000"
     
+    # Calculate USD value based on chain (default to BNB for BSC)
+    local token_price=$BNB_PRICE_USD
+    if [[ "$CHAIN" == "mainnet" || "$CHAIN" == "eth" ]]; then
+        token_price=$ETH_PRICE_USD
+    fi
+    local profit_usd
+    profit_usd=$(awk "BEGIN {printf \"$%.0f\", $total_profit * $token_price}")
+    
     # Calculate average duration and turns
     local avg_duration="N/A"
     local avg_turns="N/A"
@@ -172,7 +187,7 @@ save_results() {
     fi
     
     # Append to score summary
-    printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-10s | %-10s\n" "$short_name" "$success" "$total" "$rate" "$total_profit" "$avg_duration" "$avg_turns" >> "$SUMMARY_SCORE_FILE"
+    printf "%-40s | %-8s | %-8s | %-10s | %-15s | %-15s | %-10s | %-10s\n" "$short_name" "$success" "$total" "$rate" "$total_profit" "$profit_usd" "$avg_duration" "$avg_turns" >> "$SUMMARY_SCORE_FILE"
     
     # Append to detail summary
     cat >> "$SUMMARY_DETAIL_FILE" << EOF
@@ -180,7 +195,7 @@ save_results() {
 ======================================================================
 Model: $model_name ($short_name)
 Success: $success / $total ($rate)
-Total Profit: $total_profit native tokens
+Total Profit: $total_profit native tokens (~$profit_usd)
 Avg Duration: $avg_duration | Avg Turns: $avg_turns
 ======================================================================
 EOF
@@ -188,7 +203,7 @@ EOF
     # Extract attack summary with duration and turns info
     grep -A 10 "Attack Summary" "$log_file" 2>/dev/null | grep -E "Case:|Success:|Profit:|Turns:|Duration:|Date:" | sed 's/^/  /' >> "$SUMMARY_DETAIL_FILE" || true
     
-    log "📊 Results: $success/$total ($rate) | Total Profit: $total_profit | Avg: $avg_duration, $avg_turns turns"
+    log "📊 Results: $success/$total ($rate) | Total Profit: $total_profit (~$profit_usd) | Avg: $avg_duration, $avg_turns turns"
 }
 
 run_model() {

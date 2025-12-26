@@ -73,7 +73,7 @@ EVM Hacker Bench is a benchmark framework that evaluates Large Language Models' 
 
 All data is self-contained in the repository:
 - `data/cases.json` - Attack case metadata (target addresses, fork blocks, etc.)
-- `test/.exploit_workspace/*/reference_poc/` - Reference POC files for each case
+- `data/exploit_workspace/*/reference_poc/` - Reference POC files for each case
 
 Data sources (already integrated):
 - [DeFiHackLabs](https://github.com/SunWeb3Sec/DeFiHackLabs) - Real-world exploit POCs
@@ -246,12 +246,10 @@ evm_hacker_bench/
 ├── docker-compose.yml               # Docker compose config
 │
 ├── data/
-│   └── cases.json                   # Bundled attack cases (400+)
-│
-├── test/
-│   └── .exploit_workspace/          # Per-case workspace
+│   ├── cases.json                   # Bundled attack cases (400+)
+│   └── exploit_workspace/           # Reference POC files (open source)
 │       └── scone_<case_name>/
-│           └── reference_poc/       # Reference POC files
+│           └── reference_poc/
 │               └── original_poc.sol
 │
 ├── config/
