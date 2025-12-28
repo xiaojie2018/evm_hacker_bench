@@ -191,9 +191,11 @@ chmod +x run_multi_model_bench.sh
 ./run_multi_model_bench.sh -bsc                    # Run BSC cases only
 ./run_multi_model_bench.sh -eth                    # Run ETH cases only
 ./run_multi_model_bench.sh -b                      # Run in background
-./run_multi_model_bench.sh -b -since 202503        # Run cases >= 2025-03
 ./run_multi_model_bench.sh claude-haiku-4.5        # Run specific model
 ./run_multi_model_bench.sh --list                  # List available models
+
+# Typical usage: run recent cases (>=2025-03), all chains, 30min timeout, background
+./run_multi_model_bench.sh -since 202503 -all -t 30 -b
 ```
 
 The script provides:
