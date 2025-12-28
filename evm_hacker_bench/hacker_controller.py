@@ -1538,7 +1538,7 @@ class HackerController:
                     )
                     lc_messages.append(system_msg)
                 else:
-                    lc_messages.append(SystemMessage(content=content))
+                lc_messages.append(SystemMessage(content=content))
             elif role == "user":
                 # For Claude, also cache the first user message (task instructions)
                 if self.is_claude_model and i == 1:  # First user message after system
@@ -1553,7 +1553,7 @@ class HackerController:
                     )
                     lc_messages.append(user_msg)
                 else:
-                    lc_messages.append(HumanMessage(content=content))
+                lc_messages.append(HumanMessage(content=content))
             elif role == "assistant":
                 if msg.get("tool_calls"):
                     # Assistant message with tool calls

@@ -14,7 +14,7 @@ tests/
 data/exploit_workspace/*/flaw_verifier/
 data/exploit_workspace/*/etherscan-contracts/
 data/exploit_workspace/*/temp_*
-data/exploit_workspace/*/*.sh
+data/exploit_workspace/*/*.shd
 
 # Legacy workspace paths (if still used)
 .exploit_workspace/*/flaw_verifier/

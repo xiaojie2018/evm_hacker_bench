@@ -140,26 +140,34 @@ python run_hacker_bench.py \
 #### Batch Benchmark
 
 ```bash
-# Run all cases from DeFiHackLabs
+# Full example with all common parameters
 python run_hacker_bench.py \
-    --model anthropic/claude-haiku-4.5 \
-    --dataset defihacklabs \
-    --chain bsc \
-    --max-turns 30 \
-    --bsc-fork-url $BSC_FORK_URL
-
-# Run all cases from SCONE-bench
-python run_hacker_bench.py \
-    --model anthropic/claude-haiku-4.5 \
-    --dataset scone \
-    --bsc-fork-url $BSC_FORK_URL
-
-# Run all available datasets
-python run_hacker_bench.py \
-    --model anthropic/claude-haiku-4.5 \
-    --dataset all \
+    --model anthropic/claude-sonnet-4.5 \
+    --api-key $OPENROUTER_API_KEY \
+    --etherscan-api-key $ETHERSCAN_API_KEY \
+    --max-turns 9999 \
+    --session-timeout 1800 \
+    --progress-mode time \
     --bsc-fork-url $BSC_FORK_URL \
     --eth-fork-url $ETH_FORK_URL
+
+# Run all BSC cases with turn limit
+python run_hacker_bench.py \
+    --model anthropic/claude-haiku-4.5 \
+    --chain bsc \
+    --max-turns 100 \
+
+# Run all chains (BSC + ETH + others)
+python run_hacker_bench.py \
+    --model anthropic/claude-haiku-4.5 \
+    --eth-fork-url $ETH_FORK_URL
+
+# Run with time limit only (30 minutes per case, unlimited turns)
+python run_hacker_bench.py \
+    --model anthropic/claude-haiku-4.5 \
+    --max-turns 9999 \
+    --session-timeout 1800 \
+    --bsc-fork-url $BSC_FORK_URL
 ```
 
 #### Multi-Model Benchmark (Shell Script)
@@ -179,9 +187,11 @@ cp run_multi_model_bench.sh.example run_multi_model_bench.sh
 chmod +x run_multi_model_bench.sh
 
 # 4. Run the benchmark
+./run_multi_model_bench.sh                         # Run all chains (default)
 ./run_multi_model_bench.sh -bsc                    # Run BSC cases only
-./run_multi_model_bench.sh -all                    # Run all chains (~400+ cases)
-./run_multi_model_bench.sh -b -all                 # Run in background
+./run_multi_model_bench.sh -eth                    # Run ETH cases only
+./run_multi_model_bench.sh -b                      # Run in background
+./run_multi_model_bench.sh -b -since 202503        # Run cases >= 2025-03
 ./run_multi_model_bench.sh claude-haiku-4.5        # Run specific model
 ./run_multi_model_bench.sh --list                  # List available models
 ```
@@ -189,9 +199,10 @@ chmod +x run_multi_model_bench.sh
 The script provides:
 - **Multi-model testing**: Configure multiple models in one script
 - **Background execution**: Run long benchmarks with `-b` flag
-- **Chain selection**: `-bsc`, `-eth`, or `-all`
+- **Chain selection**: `-bsc`, `-eth`, or all chains (default)
+- **Date filtering**: `-since YYYYMM` for recent cases
 - **Progress logging**: Real-time logs and summary reports
-- **Profit tracking**: Automatic profit calculation for successful exploits
+- **Profit tracking**: Automatic profit calculation with USD conversion
 
 ### Command Line Options
 
@@ -199,12 +210,14 @@ The script provides:
 python run_hacker_bench.py [OPTIONS]
 
 Dataset Options:
-  --dataset {bundled,scone,defihacklabs,all,custom}  Dataset source (default: bundled)
+  --dataset {bundled,custom}                 Dataset source (default: bundled)
   --custom-cases PATH                        Path to custom JSON cases file
   --chain CHAIN                              Filter by chain (bsc, mainnet, etc.)
   --case CASE                                Run single case by ID
+  --case-ids FILE                            File with case IDs (one per line)
   --max-cases N                              Limit number of cases
   --start-index N                            Resume from index
+  -since YYYY-MM                             Filter cases >= date
 
 Model Options:
   --model MODEL                              LLM model name (OpenRouter format)
