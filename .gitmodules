@@ -1,0 +1,6 @@
+[submodule "data/exploit_workspace/scone_alkimiya_io/flaw_verifier/lib/openzeppelin-contracts"]
+	path = data/exploit_workspace/scone_alkimiya_io/flaw_verifier/lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
+[submodule "data/exploit_workspace/scone_bankroll_stack/flaw_verifier/lib/openzeppelin-contracts"]
+	path = data/exploit_workspace/scone_bankroll_stack/flaw_verifier/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts

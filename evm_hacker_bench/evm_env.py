@@ -43,7 +43,7 @@ CHAIN_CONFIGS = {
     "bsc": ChainConfig(
         name="BNB Smart Chain",
         chain_id=56,
-        rpc_url="https://bsc-dataseed.binance.org",
+        rpc_url="https://bsc-dataseed1.binance.org",
         native_symbol="BNB",
         block_explorer="https://bscscan.com"
     ),
@@ -203,6 +203,7 @@ class EVMEnvironment:
             "--chain-id", str(self.chain_config.chain_id),
             "--retries", "5",  # Retry RPC calls within Anvil
             "--timeout", "120000",  # 120 second timeout for RPC calls
+            "--accounts", "0",  # Don't create genesis accounts (avoids RPC issues with public nodes)
         ]
         
         # IMPORTANT: fork-block-number must be specified for historical state

@@ -41,6 +41,10 @@ class AttackCase:
     fork_block: int
     evm_version: Optional[str] = None
     
+    # Block/time advancement (for exploits requiring time progression)
+    target_block: Optional[int] = None  # Target block to roll to (vm.roll)
+    time_warp_seconds: Optional[int] = None  # Seconds to advance time (vm.warp)
+    
     # Attack details
     category: AttackCategory = AttackCategory.UNKNOWN
     description: str = ""
@@ -49,7 +53,6 @@ class AttackCase:
     
     # Source information
     source: str = ""  # defihacklabs, scone-bench, etc.
-    poc_file: Optional[str] = None
     reference_links: List[str] = field(default_factory=list)
     
     # Contract source (if available)
@@ -58,7 +61,7 @@ class AttackCase:
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
-        return {
+        result = {
             "case_id": self.case_id,
             "case_name": self.case_name,
             "chain": self.chain,
@@ -70,9 +73,14 @@ class AttackCase:
             "lost_amount": self.lost_amount,
             "attack_date": self.attack_date,
             "source": self.source,
-            "poc_file": self.poc_file,
             "reference_links": self.reference_links
         }
+        # Only include block advancement fields if set
+        if self.target_block is not None:
+            result["target_block"] = self.target_block
+        if self.time_warp_seconds is not None:
+            result["time_warp_seconds"] = self.time_warp_seconds
+        return result
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "AttackCase":
@@ -84,6 +92,14 @@ class AttackCase:
             except ValueError:
                 category = AttackCategory.UNKNOWN
         
+        # Parse block advancement fields
+        target_block = data.get("target_block")
+        if target_block is not None:
+            target_block = int(target_block)
+        time_warp_seconds = data.get("time_warp_seconds")
+        if time_warp_seconds is not None:
+            time_warp_seconds = int(time_warp_seconds)
+        
         return cls(
             case_id=data.get("case_id", data.get("case_name", "")),
             case_name=data.get("case_name", ""),
@@ -91,12 +107,13 @@ class AttackCase:
             target_address=data.get("target_address", data.get("target_contract_address", "")),
             fork_block=int(data.get("fork_block", data.get("fork_block_number", 0))),
             evm_version=data.get("evm_version") or None,
+            target_block=target_block,
+            time_warp_seconds=time_warp_seconds,
             category=category,
             description=data.get("description", ""),
             lost_amount=data.get("lost_amount", ""),
             attack_date=data.get("attack_date"),
             source=data.get("source", ""),
-            poc_file=data.get("poc_file"),
             reference_links=data.get("reference_links", [])
         )
 
@@ -261,7 +278,6 @@ class CaseLoader:
             lost_amount=lost_amount,
             attack_date=attack_date,
             source="defihacklabs",
-            poc_file=str(sol_file),
             reference_links=ref_links[:5]  # Limit to 5 links
         )
     
@@ -346,79 +362,6 @@ class CaseLoader:
             json.dump(data, f, indent=2, ensure_ascii=False)
         
         print(f"✓ Saved {len(self.cases)} cases to {output_path}")
-    
-    def enrich_with_poc(self, defihacklabs_dir: Path) -> int:
-        """
-        Try to match and enrich cases with DeFiHackLabs POC files
-        Also extracts attack_date from POC file path (e.g., 2024-01/)
-        
-        Args:
-            defihacklabs_dir: Path to DeFiHackLabs test directory
-            
-        Returns:
-            Number of cases enriched
-        """
-        defihacklabs_dir = Path(defihacklabs_dir)
-        if not defihacklabs_dir.exists():
-            return 0
-        
-        # Build a map of case names to POC files and their dates
-        poc_map = {}  # name -> (file, date)
-        sol_files = list(defihacklabs_dir.rglob("*.sol"))
-        sol_files = [f for f in sol_files if "Zone.Identifier" not in f.name]
-        
-        for sol_file in sol_files:
-            # Extract case name from filename
-            name = sol_file.stem.replace('_exp', '').lower()
-            # Also create normalized version (remove underscores, spaces)
-            normalized = name.replace('_', '').replace(' ', '')
-            
-            # Extract date from parent directory (e.g., 2024-01)
-            parent_name = sol_file.parent.name
-            date_match = re.match(r'(\d{4}-\d{2})', parent_name)
-            attack_date = date_match.group(1) if date_match else None
-            
-            poc_map[name] = (sol_file, attack_date)
-            if normalized != name:
-                poc_map[normalized] = (sol_file, attack_date)
-        
-        enriched_count = 0
-        for case in self.cases:
-            if case.poc_file and case.attack_date:
-                continue  # Already fully enriched
-            
-            # Try to find matching POC
-            case_name_lower = case.case_name.lower()
-            # Normalized version (remove underscores, spaces)
-            case_normalized = case_name_lower.replace('_', '').replace(' ', '')
-            matched_poc = None
-            matched_date = None
-            
-            # Direct match
-            if case_name_lower in poc_map:
-                matched_poc, matched_date = poc_map[case_name_lower]
-            elif case_normalized in poc_map:
-                matched_poc, matched_date = poc_map[case_normalized]
-            else:
-            # Fuzzy match: check if case name contains POC name or vice versa
-                for poc_name, (poc_file, poc_date) in poc_map.items():
-                    poc_normalized = poc_name.replace('_', '').replace(' ', '')
-                    if (poc_name in case_name_lower or case_name_lower in poc_name or
-                        poc_normalized in case_normalized or case_normalized in poc_normalized):
-                        matched_poc = poc_file
-                        matched_date = poc_date
-                    break
-            
-            if matched_poc:
-                if not case.poc_file:
-                    case.poc_file = str(matched_poc)
-                if not case.attack_date and matched_date:
-                    case.attack_date = matched_date
-                enriched_count += 1
-        
-        if enriched_count > 0:
-            print(f"✓ Enriched {enriched_count} cases with POC files and dates")
-        return enriched_count
     
     def filter_by_chain(self, chain: str) -> List[AttackCase]:
         """Filter cases by chain"""

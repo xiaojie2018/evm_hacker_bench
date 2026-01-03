@@ -96,7 +96,8 @@ class BashTool:
                 stderr=subprocess.PIPE,
                 cwd=work_dir,
                 env=self.env,
-                text=True
+                text=True,
+                start_new_session=True  # Create new process group for proper cleanup
             )
             
             stdout, stderr = process.communicate(timeout=timeout)
@@ -110,7 +111,13 @@ class BashTool:
             )
             
         except subprocess.TimeoutExpired:
-            process.kill()
+            # Kill the entire process group
+            import os
+            import signal
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                process.kill()
             stdout, stderr = process.communicate()
             duration = time.time() - start_time
             

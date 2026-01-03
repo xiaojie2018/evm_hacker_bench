@@ -181,8 +181,12 @@ class ContractFetcher:
             is_proxy = result.get("Proxy") == "1"
             implementation_address = result.get("Implementation") if is_proxy else None
             
+            # Use lowercase address for directory naming (case-insensitive)
+            # This prevents issues with LLM using slightly different case
+            normalized_address = address.lower()
+            
             contract_source = ContractSource(
-                address=address,
+                address=normalized_address,
                 name=result.get("ContractName", "Unknown"),
                 source_code=source_code,
                 abi=abi,
@@ -224,8 +228,14 @@ class ContractFetcher:
             
         Returns:
             Path to contract directory
+        
+        Note:
+            Uses lowercase addresses for directory names to prevent
+            case-sensitivity issues on Linux filesystems.
         """
-        contract_dir = base_dir / source.address / source.name
+        # Use lowercase address for directory to prevent case-sensitivity issues
+        normalized_address = source.address.lower()
+        contract_dir = base_dir / normalized_address / source.name
         contract_dir.mkdir(parents=True, exist_ok=True)
         
         # Save main source
@@ -250,7 +260,8 @@ class ContractFetcher:
         
         # Save implementation if exists
         if source.implementation_source:
-            impl_dir = base_dir / source.implementation_address / source.implementation_source.name
+            impl_normalized_address = source.implementation_address.lower()
+            impl_dir = base_dir / impl_normalized_address / source.implementation_source.name
             impl_dir.mkdir(parents=True, exist_ok=True)
             
             impl_source_file = impl_dir / f"{source.implementation_source.name}.sol"
@@ -269,7 +280,8 @@ class ContractFetcher:
         self,
         address: str,
         abi: List[Dict],
-        rpc_url: str = "http://127.0.0.1:8545"
+        rpc_url: str = "http://127.0.0.1:8545",
+        query_mappings: bool = True
     ) -> Dict[str, Any]:
         """
         Query contract state variables using web3
@@ -278,6 +290,7 @@ class ContractFetcher:
             address: Contract address
             abi: Contract ABI
             rpc_url: RPC endpoint
+            query_mappings: Whether to query mapping-type state variables
             
         Returns:
             Dict of state variable names and values
@@ -289,42 +302,122 @@ class ContractFetcher:
             contract = w3.eth.contract(address=Web3.to_checksum_address(address), abi=abi)
             
             state = {}
+            mapping_state = {}
             
-            # Find view/pure functions that look like state getters
+            # Common addresses to query for mapping values
+            # These include the contract itself, common DEX addresses, and zero address
+            probe_addresses = [
+                address,  # The contract itself
+                "0x0000000000000000000000000000000000000000",  # Zero address
+                "0x000000000000000000000000000000000000dEaD",  # Dead address
+            ]
+            
+            # Find view/pure functions
             for item in abi:
                 if item.get("type") != "function":
                     continue
                 if item.get("stateMutability") not in ["view", "pure"]:
                     continue
-                if item.get("inputs"):  # Skip functions with inputs
-                    continue
                 
                 func_name = item.get("name", "")
+                inputs = item.get("inputs", [])
                 outputs = item.get("outputs", [])
                 
                 if not outputs or len(outputs) != 1:
                     continue
                 
-                try:
-                    func = getattr(contract.functions, func_name)
-                    value = func().call()
-                    
-                    output_type = outputs[0].get("type", "unknown")
-                    
-                    # Format value based on type
-                    if output_type == "address":
-                        state[func_name] = {"value": value, "type": "address"}
-                    elif output_type.startswith("uint") or output_type.startswith("int"):
-                        state[func_name] = {"value": str(value), "type": output_type}
-                    elif output_type == "bool":
-                        state[func_name] = {"value": value, "type": "bool"}
-                    elif output_type == "string":
-                        state[func_name] = {"value": value, "type": "string"}
-                    else:
-                        state[func_name] = {"value": str(value), "type": output_type}
+                output_type = outputs[0].get("type", "unknown")
+                
+                # Case 1: No inputs - simple state variable
+                if not inputs:
+                    try:
+                        func = getattr(contract.functions, func_name)
+                        value = func().call()
                         
-                except Exception:
-                    continue
+                        # Format value based on type
+                        if output_type == "address":
+                            state[func_name] = {"value": value, "type": "address"}
+                            # Add discovered address to probe list for mapping queries
+                            if value and value != "0x0000000000000000000000000000000000000000":
+                                probe_addresses.append(value)
+                        elif output_type.startswith("uint") or output_type.startswith("int"):
+                            state[func_name] = {"value": str(value), "type": output_type}
+                        elif output_type == "bool":
+                            state[func_name] = {"value": value, "type": "bool"}
+                        elif output_type == "string":
+                            state[func_name] = {"value": value, "type": "string"}
+                        else:
+                            state[func_name] = {"value": str(value), "type": output_type}
+                            
+                    except Exception:
+                        continue
+                
+                # Case 2: Single address input - likely a mapping (e.g., balanceOf, allowance)
+                elif query_mappings and len(inputs) == 1 and inputs[0].get("type") == "address":
+                    # Common mapping getter patterns
+                    mapping_patterns = ["balanceOf", "allowance", "getApproved", "isApprovedForAll", 
+                                       "nonces", "delegates", "checkpoints", "numCheckpoints"]
+                    
+                    # Only query for common patterns to avoid too many RPC calls
+                    if any(pattern.lower() in func_name.lower() for pattern in mapping_patterns):
+                        mapping_results = {}
+                        func = getattr(contract.functions, func_name)
+                        
+                        for probe_addr in probe_addresses[:5]:  # Limit to 5 probes
+                            try:
+                                checksum_addr = Web3.to_checksum_address(probe_addr)
+                                value = func(checksum_addr).call()
+                                
+                                # Only record non-zero values
+                                if value and value != 0:
+                                    if output_type.startswith("uint") or output_type.startswith("int"):
+                                        mapping_results[probe_addr] = str(value)
+                                    else:
+                                        mapping_results[probe_addr] = value
+                            except Exception:
+                                continue
+                        
+                        # Always record mapping, even if no non-zero samples found
+                        # This helps LLM understand the contract structure
+                        mapping_state[func_name] = {
+                            "type": f"mapping(address => {output_type})",
+                            "samples": mapping_results  # May be empty dict
+                        }
+                
+                # Case 3: Two address inputs - likely allowance-style mapping
+                elif query_mappings and len(inputs) == 2 and all(i.get("type") == "address" for i in inputs):
+                    if "allowance" in func_name.lower():
+                        # Query allowance for contract -> common DEX routers
+                        dex_routers = [
+                            "0x10ED43C718714eb63d5aA57B78B54704E256024E",  # PancakeSwap Router
+                            "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",  # Uniswap V2 Router
+                        ]
+                        
+                        allowance_results = {}
+                        func = getattr(contract.functions, func_name)
+                        
+                        for owner in probe_addresses[:3]:
+                            for spender in dex_routers:
+                                try:
+                                    owner_checksum = Web3.to_checksum_address(owner)
+                                    spender_checksum = Web3.to_checksum_address(spender)
+                                    value = func(owner_checksum, spender_checksum).call()
+                                    
+                                    if value and value != 0:
+                                        key = f"{owner[:10]}...→{spender[:10]}..."
+                                        allowance_results[key] = str(value)
+                                except Exception:
+                                    continue
+                        
+                        if allowance_results:
+                            mapping_state[func_name] = {
+                                "type": "mapping(address => mapping(address => uint256))",
+                                "samples": allowance_results
+                            }
+            
+            # Merge mapping state into main state with special prefix
+            for name, info in mapping_state.items():
+                state[f"[mapping]{name}"] = info
             
             return state
             

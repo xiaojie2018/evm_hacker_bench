@@ -30,10 +30,38 @@ import os
 import sys
 import time
 import io
+import signal
+import atexit
 from pathlib import Path
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
+
+# Global list to track cleanup functions
+_cleanup_functions = []
+
+def register_cleanup(func):
+    """Register a cleanup function to be called on exit"""
+    _cleanup_functions.append(func)
+
+def cleanup_all():
+    """Run all registered cleanup functions"""
+    for func in reversed(_cleanup_functions):
+        try:
+            func()
+        except Exception as e:
+            print(f"Cleanup error: {e}", file=sys.__stderr__)
+
+def signal_handler(signum, frame):
+    """Handle interrupt signals gracefully"""
+    print(f"\n\n🛑 Received signal {signum}, cleaning up...", file=sys.__stderr__)
+    cleanup_all()
+    sys.exit(128 + signum)
+
+# Register signal handlers
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+atexit.register(cleanup_all)
 
 
 class TeeWriter:
@@ -228,7 +256,8 @@ def run_single_case(
     case: AttackCase,
     model_name: str,
     api_key: Optional[str],
-    args
+    args,
+    output_dir: Path
 ) -> dict:
     """Run attack on a single case"""
     # Get the appropriate RPC URL for this chain
@@ -286,7 +315,7 @@ def run_single_case(
                 verbose=args.verbose,
                 enable_compression=enable_compression,
                 progress_mode=args.progress_mode,
-                log_dir=Path(args.log_dir) if args.log_dir else None  # Pass log directory for raw_data storage
+                log_dir=output_dir  # Use same timestamped directory for raw_data storage
             )
             
             # Try to fetch contract source from block explorer
@@ -306,17 +335,11 @@ def run_single_case(
                 except Exception as e:
                     print(f"   ⚠️ Could not fetch source: {e}")
             
-            # Try to load POC from DeFiHackLabs as reference
-            poc_content = None
-            if case.poc_file and Path(case.poc_file).exists():
-                try:
-                    poc_content = Path(case.poc_file).read_text()
-                    print(f"   ✓ Reference POC loaded from {Path(case.poc_file).name}")
-                except Exception as e:
-                    print(f"   ⚠️ Could not load POC: {e}")
+            # Discovery Mode: LLM must find vulnerability independently
+            print(f"   🔍 Discovery Mode: LLM must find vulnerability independently")
             
-            # Run attack
-            attack_result = controller.run_attack(case, env, contract_source, poc_content)
+            # Run attack (Discovery Mode only)
+            attack_result = controller.run_attack(case, env, contract_source)
             
             result.update(attack_result)
             
@@ -357,20 +380,32 @@ def setup_explorer_api_keys(args):
 
 def run_benchmark(args):
     """Main benchmark runner"""
-    # Prepare output directory and log file
-    output_dir = Path(args.output_dir)
+    # Prepare output directory
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    base_output_dir = Path(args.output_dir)
+    
+    # Create timestamp subdirectory unless --no-timestamp-dir is set
+    # (bash script already creates timestamped directory)
+    if getattr(args, 'no_timestamp_dir', False):
+        output_dir = base_output_dir
+    else:
+        output_dir = base_output_dir / timestamp
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     model_safe = args.model.replace("/", "_")
     
     # Setup console log file (tee output to both console and file)
-    console_log_file = output_dir / f"console_{model_safe}_{timestamp}.log"
-    tee_writer = TeeWriter(console_log_file)
+    # Skip if --no-console-log is set (when bash script uses tee externally)
+    console_log_file = None
+    tee_writer = None
     original_stdout = sys.stdout
     original_stderr = sys.stderr
-    sys.stdout = tee_writer
-    sys.stderr = TeeStderr(tee_writer.log_file, original_stderr)
+    
+    if not getattr(args, 'no_console_log', False):
+        console_log_file = output_dir / f"{model_safe}.log"
+        tee_writer = TeeWriter(console_log_file)
+        sys.stdout = tee_writer
+        sys.stderr = TeeStderr(tee_writer.log_file, original_stderr)
     
     try:
         print(f"\n{'='*70}")
@@ -386,13 +421,15 @@ def run_benchmark(args):
             print(f"Thinking Budget: {args.thinking_budget} tokens")
         compression_enabled = args.enable_compression and not args.no_compression
         print(f"Message Compression: {'Enabled' if compression_enabled else 'Disabled'}")
+        print(f"Mode: 🔍 Discovery Mode (LLM must find vulnerabilities independently)")
         print(f"Progress Mode: {args.progress_mode} ({'elapsed/total minutes' if args.progress_mode == 'time' else 'turn/max_turns'})")
         print(f"Max Turns: {args.max_turns}")
         print(f"Timeout per Turn: {args.timeout}s")
         print(f"Session Timeout: {args.session_timeout}s ({args.session_timeout//60} minutes)")
         if args.fork_url:
             print(f"Custom Fork URL: {args.fork_url}")
-        print(f"Console Log: {console_log_file}")
+        if console_log_file:
+            print(f"Console Log: {console_log_file}")
         
         # Setup explorer API keys
         configured_keys = setup_explorer_api_keys(args)
@@ -432,14 +469,14 @@ def run_benchmark(args):
         for i, case in enumerate(cases):
             print(f"\n[{i+1}/{len(cases)}]", end=" ")
             
-            result = run_single_case(case, args.model, api_key, args)
+            result = run_single_case(case, args.model, api_key, args, output_dir)
             results.append(result)
             
             # Delay to avoid RPC rate limiting (important for QuickNode and other RPCs)
             time.sleep(2.0)
             
             # Save intermediate results
-            intermediate_file = output_dir / f"results_{model_safe}_{timestamp}_partial.json"
+            intermediate_file = output_dir / f"results_{model_safe}_partial.json"
             with open(intermediate_file, 'w', encoding='utf-8') as f:
                 json.dump({
                     "model": args.model,
@@ -451,6 +488,13 @@ def run_benchmark(args):
         
         # Calculate final metrics
         successful = sum(1 for r in results if r.get('final_success', False))
+        total_profit = sum(r.get('profit', 0) or 0 for r in results)
+        
+        # Calculate average duration and turns
+        durations = [r.get('stats', {}).get('duration_seconds', 0) for r in results if r.get('stats')]
+        turns_list = [r.get('stats', {}).get('total_turns', 0) for r in results if r.get('stats')]
+        avg_duration = sum(durations) / len(durations) if durations else 0
+        avg_turns = sum(turns_list) / len(turns_list) if turns_list else 0
         
         # Save final results
         final_results = {
@@ -469,14 +513,68 @@ def run_benchmark(args):
                 "total_cases": len(cases),
                 "successful": successful,
                 "failed": len(cases) - successful,
-                "success_rate": round(100 * successful / len(cases), 2) if cases else 0
+                "success_rate": round(100 * successful / len(cases), 2) if cases else 0,
+                "total_profit": round(total_profit, 4),
+                "avg_duration_seconds": round(avg_duration, 1),
+                "avg_turns": round(avg_turns, 1)
             },
             "results": results
         }
         
-        final_file = output_dir / f"benchmark_results_{model_safe}_{timestamp}.json"
+        final_file = output_dir / f"benchmark_results_{model_safe}.json"
         with open(final_file, 'w', encoding='utf-8') as f:
             json.dump(final_results, f, indent=2, ensure_ascii=False)
+        
+        # Generate summary files
+        summary_score_file = output_dir / "summary_score.log"
+        summary_detail_file = output_dir / "summary_detail.log"
+        
+        # Write summary_score.log (compact format)
+        success_rate = final_results['summary']['success_rate']
+        with open(summary_score_file, 'w', encoding='utf-8') as f:
+            f.write(f"{'='*70}\n")
+            f.write(f"EVM HACKER BENCH - SUMMARY SCORE\n")
+            f.write(f"{'='*70}\n")
+            f.write(f"Timestamp: {timestamp}\n")
+            f.write(f"Model: {args.model}\n")
+            f.write(f"\n")
+            f.write(f"{model_safe}: {successful}/{len(cases)} ({success_rate}%) | Profit: {total_profit:.4f} | Avg: {avg_duration:.0f}s, {avg_turns:.0f} turns\n")
+        
+        # Write summary_detail.log (detailed format)
+        with open(summary_detail_file, 'w', encoding='utf-8') as f:
+            f.write(f"{'='*70}\n")
+            f.write(f"EVM HACKER BENCH - DETAILED SUMMARY\n")
+            f.write(f"{'='*70}\n")
+            f.write(f"Timestamp: {timestamp}\n")
+            f.write(f"Model: {args.model}\n")
+            f.write(f"Dataset: {args.dataset}\n")
+            f.write(f"Total Cases: {len(cases)}\n")
+            f.write(f"Successful: {successful}\n")
+            f.write(f"Failed: {len(cases) - successful}\n")
+            f.write(f"Success Rate: {success_rate}%\n")
+            f.write(f"Total Profit: {total_profit:.4f}\n")
+            f.write(f"Avg Duration: {avg_duration:.1f}s ({avg_duration/60:.1f} min)\n")
+            f.write(f"Avg Turns: {avg_turns:.1f}\n")
+            f.write(f"\n{'='*70}\n")
+            f.write(f"CASE RESULTS\n")
+            f.write(f"{'='*70}\n\n")
+            
+            for r in results:
+                status = "✅ SUCCESS" if r.get('final_success') else "❌ FAILED"
+                profit = r.get('profit', 0) or 0
+                duration = r.get('stats', {}).get('duration_seconds', 0)
+                turns = r.get('stats', {}).get('total_turns', 0)
+                error = r.get('error', '')
+                
+                f.write(f"Case: {r.get('case_name', 'unknown')}\n")
+                f.write(f"  Status: {status}\n")
+                f.write(f"  Chain: {r.get('chain', 'unknown')}\n")
+                f.write(f"  Profit: {profit:.4f}\n")
+                f.write(f"  Duration: {duration:.1f}s ({duration/60:.1f} min)\n")
+                f.write(f"  Turns: {turns}\n")
+                if error:
+                    f.write(f"  Error: {error[:100]}...\n" if len(error) > 100 else f"  Error: {error}\n")
+                f.write(f"\n")
         
         # Print final summary
         print(f"\n{'='*70}")
@@ -487,8 +585,13 @@ def run_benchmark(args):
         print(f"Successful: {successful}")
         print(f"Failed: {len(cases) - successful}")
         print(f"Success Rate: {final_results['summary']['success_rate']}%")
+        print(f"Total Profit: {total_profit:.4f}")
+        print(f"Avg Duration: {avg_duration:.1f}s | Avg Turns: {avg_turns:.1f}")
         print(f"\nResults saved to: {final_file}")
-        print(f"Console log saved to: {console_log_file}")
+        print(f"Summary score: {summary_score_file}")
+        print(f"Summary detail: {summary_detail_file}")
+        if console_log_file:
+            print(f"Console log: {console_log_file}")
         print(f"{'='*70}\n")
         
         # Remove intermediate file
@@ -499,7 +602,8 @@ def run_benchmark(args):
         # Restore original stdout/stderr and close log file
         sys.stdout = original_stdout
         sys.stderr = original_stderr
-        tee_writer.close()
+        if tee_writer:
+            tee_writer.close()
 
 
 def main():
@@ -740,8 +844,8 @@ def main():
     parser.add_argument(
         '--output-dir', '-o',
         type=str,
-        default='results',
-        help='Output directory for results (default: results)'
+        default='logs',
+        help='Output directory for results (default: logs)'
     )
     
     parser.add_argument(
@@ -753,7 +857,20 @@ def main():
     parser.add_argument(
         '--log-dir',
         type=str,
-        help='Log directory for raw_data storage (e.g., logs/20251224_1423). If not specified, a new directory will be created.'
+        default='logs',
+        help='Log directory for raw_data storage (default: logs)'
+    )
+    
+    parser.add_argument(
+        '--no-console-log',
+        action='store_true',
+        help='Disable separate console log file (use when calling from bash script with tee)'
+    )
+    
+    parser.add_argument(
+        '--no-timestamp-dir',
+        action='store_true',
+        help='Do not create timestamp subdirectory (use when bash script already created it)'
     )
     
     args = parser.parse_args()

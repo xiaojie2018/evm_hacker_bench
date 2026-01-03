@@ -91,11 +91,12 @@ class HackerController:
         self.enable_thinking = enable_thinking
         self.thinking_budget = thinking_budget
         # Default work_dir: data/exploit_workspace (contains reference POCs)
+        # Always resolve() to get canonical absolute path (removes ../ components)
         if work_dir:
-            self.work_dir = work_dir
+            self.work_dir = Path(work_dir).resolve()
         else:
             # Find project root (where data/ directory exists)
-            project_root = Path(__file__).parent.parent
+            project_root = Path(__file__).parent.parent.resolve()
             self.work_dir = project_root / "data" / "exploit_workspace"
         self.verbose = verbose
         self.enable_compression = enable_compression
@@ -124,6 +125,10 @@ class HackerController:
         # Turn summaries for message compression
         # Key: turn number, Value: summary string
         self.turn_summaries: Dict[int, str] = {}
+        
+        # Turn key contexts for compression (code snippets, paths, addresses)
+        # Key: turn number, Value: dict with extracted key information
+        self.turn_contexts: Dict[int, Dict[str, Any]] = {}
         
         # Full messages storage (for compression)
         # Key: turn number, Value: list of messages for that turn
@@ -223,17 +228,21 @@ class HackerController:
         
         print("📋 Fetching contract information...")
         
+        # Use lowercase address for directory paths (case-insensitive)
+        # This prevents issues with LLM using slightly different case
+        normalized_address = case.target_address.lower()
+        
         contract_info = ContractInfo(
-            address=case.target_address,
+            address=case.target_address,  # Keep original for display
             name=case.case_name,
-            source_code_path=str(work_dir / "etherscan-contracts" / case.target_address)
+            source_code_path=str(work_dir / "etherscan-contracts" / normalized_address)
         )
         
         try:
             # Fetch contract source and ABI from block explorer
             rpc_url = f"http://127.0.0.1:{env.anvil_port}"
             source, state_vars = fetch_contract_for_case(
-                address=case.target_address,
+                address=normalized_address,  # Use lowercase for directory
                 chain=case.chain,
                 work_dir=work_dir,
                 rpc_url=rpc_url
@@ -244,9 +253,17 @@ class HackerController:
                 contract_info.is_proxy = source.is_proxy
                 contract_info.implementation_address = source.implementation_address
                 
+                # Update source_code_path to point to actual .sol file (not just directory)
+                # Path format: .../etherscan-contracts/{address}/{ContractName}/{ContractName}.sol
                 if source.is_proxy and source.implementation_address:
+                    impl_addr = source.implementation_address.lower()
+                    impl_name = source.implementation_source.name if source.implementation_source else source.name
                     contract_info.source_code_path = str(
-                        work_dir / "etherscan-contracts" / source.implementation_address
+                        work_dir / "etherscan-contracts" / impl_addr / impl_name / f"{impl_name}.sol"
+                    )
+                else:
+                    contract_info.source_code_path = str(
+                        work_dir / "etherscan-contracts" / normalized_address / source.name / f"{source.name}.sol"
                     )
                 
                 print(f"   ✓ Contract: {source.name}")
@@ -304,7 +321,7 @@ class HackerController:
                 ("WETH", "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", 18),
                 ("USDT", "0xdAC17F958D2ee523a2206206994597C13D831ec7", 6),
                 ("USDC", "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", 6),
-                ("DAI", "0x6B175474E89094C44Da98b954EescdecB5bad78", 18),
+                ("DAI", "0x6B175474E89094C44Da98b954EecdeCB5bAd78d9", 18),
             ],
             "base": [
                 ("WETH", "0x4200000000000000000000000000000000000006", 18),
@@ -358,6 +375,134 @@ class HackerController:
             print(f"   ⚠️ Error fetching token balances: {e}")
             return {}
     
+    def _fetch_liquidity_pools(
+        self,
+        contract_info: 'ContractInfo',
+        chain: str,
+        anvil_port: int
+    ) -> List[Dict]:
+        """
+        Extract liquidity pool information from contract state variables
+        
+        Looks for common patterns like liquidityPool, pair, lpToken in state variables
+        and fetches the pair's token0/token1 info.
+        
+        Args:
+            contract_info: Contract info with state variables
+            chain: Chain name
+            anvil_port: Anvil port
+            
+        Returns:
+            List of liquidity pool info dicts
+        """
+        import subprocess
+        
+        if not contract_info.state_variables:
+            return []
+        
+        # Use full path for cast command
+        cast_cmd = os.path.expanduser("~/.foundry/bin/cast")
+        
+        pools = []
+        pool_keywords = ['liquiditypool', 'pair', 'lptoken', 'lp', 'pool']
+        
+        # Find potential pool addresses in state variables
+        # state_variables is a dict: {name: {"value": ..., "type": ...}}
+        pool_addresses = []
+        for var_name, var_info in contract_info.state_variables.items():
+            # Handle both dict format and potential other formats
+            if isinstance(var_info, dict):
+                var_type = var_info.get('type', '')
+                var_value = var_info.get('value', '')
+            else:
+                # If it's a simple value (string/int), try to use it directly
+                var_type = 'unknown'
+                var_value = str(var_info)
+            
+            var_name_lower = var_name.lower()
+            
+            # Check if this looks like a pool address
+            if var_type == 'address' and any(kw in var_name_lower for kw in pool_keywords):
+                if var_value and str(var_value).startswith('0x') and var_value != '0x0000000000000000000000000000000000000000':
+                    pool_addresses.append({
+                        'address': var_value,
+                        'name': var_name
+                    })
+        
+        # Fetch token0/token1 for each pool
+        rpc_url = f"http://127.0.0.1:{anvil_port}"
+        
+        for pool in pool_addresses:
+            try:
+                # Get token0
+                result0 = subprocess.run(
+                    [cast_cmd, 'call', pool['address'], 'token0()', '--rpc-url', rpc_url],
+                    capture_output=True, text=True, timeout=10
+                )
+                # Get token1
+                result1 = subprocess.run(
+                    [cast_cmd, 'call', pool['address'], 'token1()', '--rpc-url', rpc_url],
+                    capture_output=True, text=True, timeout=10
+                )
+                
+                if result0.returncode == 0 and result1.returncode == 0:
+                    token0 = result0.stdout.strip()
+                    token1 = result1.stdout.strip()
+                    
+                    # Clean up addresses (remove leading zeros)
+                    if token0.startswith('0x'):
+                        token0 = '0x' + token0[2:].lstrip('0').zfill(40)
+                    if token1.startswith('0x'):
+                        token1 = '0x' + token1[2:].lstrip('0').zfill(40)
+                    
+                    # Get token names (optional)
+                    token0_name = self._get_token_name(token0, chain)
+                    token1_name = self._get_token_name(token1, chain)
+                    
+                    pools.append({
+                        'name': pool['name'],
+                        'address': pool['address'],
+                        'token0': token0,
+                        'token0_name': token0_name,
+                        'token1': token1,
+                        'token1_name': token1_name
+                    })
+                    print(f"   ✓ Pool {pool['name']}: {token0_name}/{token1_name}")
+                    
+            except Exception as e:
+                print(f"   ⚠️ Failed to fetch pool info for {pool['address']}: {e}")
+                continue
+        
+        return pools
+    
+    def _get_token_name(self, address: str, chain: str) -> str:
+        """Get token name from address using known tokens list"""
+        # Known tokens mapping
+        known_tokens = {
+            "bsc": {
+                "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c": "WBNB",
+                "0x55d398326f99059fF775485246999027B3197955": "USDT",
+                "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d": "USDC",
+                "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56": "BUSD",
+            },
+            "mainnet": {
+                "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "WETH",
+                "0xdAC17F958D2ee523a2206206994597C13D831ec7": "USDT",
+                "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48": "USDC",
+            }
+        }
+        
+        chain_tokens = known_tokens.get(chain, {})
+        
+        # Normalize address for comparison
+        addr_lower = address.lower()
+        for known_addr, name in chain_tokens.items():
+            if known_addr.lower() == addr_lower:
+                return name
+        
+        # Return shortened address if unknown
+        return f"{address[:6]}...{address[-4:]}"
+    
     def _setup_environment(
         self,
         case: AttackCase,
@@ -373,15 +518,26 @@ class HackerController:
         Returns:
             Path to work directory
         """
-        work_dir = self.work_dir / case.case_id
+        # Resolve to get canonical path (removes ../ components)
+        work_dir = (self.work_dir / case.case_id).resolve()
         work_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create FlawVerifier project
+        # Create FlawVerifier project (with optional block/time advancement)
         print("📁 Setting up FlawVerifier project...")
+        if case.target_block or case.time_warp_seconds:
+            advancement_info = []
+            if case.target_block:
+                advancement_info.append(f"target_block={case.target_block}")
+            if case.time_warp_seconds:
+                advancement_info.append(f"time_warp={case.time_warp_seconds}s")
+            print(f"   Block/Time Advancement: {', '.join(advancement_info)}")
+        
         FlawVerifierTemplate.create_project(
             work_dir,
             port=env.anvil_port,
-            evm_version=case.evm_version or "shanghai"
+            evm_version=case.evm_version or "shanghai",
+            target_block=case.target_block,
+            time_warp_seconds=case.time_warp_seconds
         )
         
         # Install forge-std
@@ -446,8 +602,8 @@ class HackerController:
             else:
                 print("   ⚠️ forge-std installation may have failed")
         
-        # Create etherscan-contracts directory structure
-        contracts_dir = work_dir / "etherscan-contracts" / case.target_address
+        # Create etherscan-contracts directory structure (use lowercase for consistency)
+        contracts_dir = work_dir / "etherscan-contracts" / case.target_address.lower()
         contracts_dir.mkdir(parents=True, exist_ok=True)
         
         # If contract source is available, write it
@@ -488,13 +644,21 @@ class HackerController:
             else:
                 print(f"      Command: {cmd[:150]}{'...' if len(cmd) > 150 else ''}")
         elif tool_name == "view_file":
-            print(f"      Path: {arguments.get('path', '')}")
+            path = arguments.get('path', '')
+            start_line = arguments.get('start_line') or (arguments.get('view_range', [None])[0] if arguments.get('view_range') else None)
+            end_line = arguments.get('end_line') or (arguments.get('view_range', [None, None])[1] if arguments.get('view_range') and len(arguments.get('view_range', [])) > 1 else None)
+            print(f"      Path: {path}")
+            if start_line or end_line:
+                print(f"      Lines: {start_line or 1}-{end_line or 'end'}")
         elif tool_name == "edit_file":
             print(f"      Path: {arguments.get('path', '')}")
         elif tool_name == "write_file":
             print(f"      Path: {arguments.get('path', '')}")
             content = arguments.get('content', '')
             print(f"      Content: {len(content)} chars, {content.count(chr(10)) + 1} lines")
+        elif tool_name == "get_pair":
+            print(f"      Token0: {arguments.get('token0', '')}")
+            print(f"      Token1: {arguments.get('token1', '')}")
         
         result = self.tool_executor.execute_tool(tool_name, arguments)
         
@@ -571,6 +735,21 @@ class HackerController:
             else:
                 print(f"      ❌ Write failed: {result.error}")
         
+        # Show get_pair results
+        elif tool_name == "get_pair":
+            if result.success:
+                # Extract pair address from output
+                if "Pair Address:" in result.output:
+                    pair_line = [l for l in result.output.split('\n') if 'Pair Address:' in l]
+                    if pair_line:
+                        print(f"      ✓ {pair_line[0].strip()}")
+                elif "does not exist" in result.output:
+                    print(f"      ⚠️ Pair not found (0x0)")
+                else:
+                    print(f"      ✓ Query completed")
+            else:
+                print(f"      ❌ Query failed: {result.error}")
+        
         # Verbose: print full tool result
         if self.verbose:
             print(f"\n   📋 Tool Result ({tool_name}):")
@@ -587,17 +766,18 @@ class HackerController:
         self,
         case: AttackCase,
         env: EVMEnvironment,
-        contract_source: Optional[str] = None,
-        poc_reference: Optional[str] = None
+        contract_source: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Run complete attack workflow with multi-tool support
+        Run complete attack workflow with multi-tool support (Discovery Mode)
+        
+        LLM must discover vulnerabilities independently using the fetch_contract tool
+        to retrieve contract source code from block explorers.
         
         Args:
             case: Attack case to exploit
             env: EVM environment
-            contract_source: Optional contract source code
-            poc_reference: Optional reference POC content from DeFiHackLabs
+            contract_source: Optional contract source code (usually fetched via fetch_contract)
             
         Returns:
             Attack result dictionary
@@ -631,31 +811,41 @@ class HackerController:
         # Setup environment
         work_dir = self._setup_environment(case, env)
         
-        # Initialize tool executor
+        # Initialize tool executor (with chain for fetch_contract)
         self.tool_executor = ToolExecutor(
             work_dir=work_dir,
             timeout=self.timeout_per_turn,
-            anvil_port=env.anvil_port
+            anvil_port=env.anvil_port,
+            chain=case.chain
         )
         
         # Fetch contract source and state (enhanced for detailed prompts)
         contract_info = self._fetch_contract_info(case, env, work_dir)
         
-        # Save POC to workspace if available
-        if poc_reference:
-            poc_dir = work_dir / "reference_poc"
-            poc_dir.mkdir(parents=True, exist_ok=True)
-            (poc_dir / "original_poc.sol").write_text(poc_reference)
+        # Fetch liquidity pool information from state variables
+        liquidity_pools = self._fetch_liquidity_pools(
+            contract_info=contract_info,
+            chain=case.chain,
+            anvil_port=env.anvil_port
+        )
+        if liquidity_pools:
+            print(f"   ✓ Found {len(liquidity_pools)} liquidity pool(s)")
         
+        # Discovery Mode: LLM must fetch contract source using fetch_contract tool
         system_prompt = self.prompt_builder.build_system_prompt(
             case=case,
             env=env,
             contract_info=contract_info,
             work_dir=str(work_dir),
-            poc_reference=poc_reference
+            liquidity_pools=liquidity_pools
         )
         
-        initial_message = self.prompt_builder.build_initial_user_message(case, max_turns=self.max_turns, work_dir=str(work_dir))
+        initial_message = self.prompt_builder.build_initial_user_message(
+            case, 
+            max_turns=self.max_turns, 
+            work_dir=str(work_dir),
+            rpc_url=f"http://127.0.0.1:{env.anvil_port}"
+        )
         
         # Initialize conversation
         self.messages = [
@@ -682,6 +872,10 @@ class HackerController:
         forge_build_count = 0
         edit_count = 0
         first_forge_test_turn = None
+        
+        # Track best profit for maximization
+        best_profit = 0.0
+        best_profit_turn = None
         
         # Session timeout tracking (default: 60 minutes)
         session_start_time = time.time()
@@ -926,10 +1120,21 @@ class HackerController:
                                     match = re.search(r'Final balance:\s*([\d,]+\.?\d*)', tool_result.output)
                                     if match:
                                         final_balance = float(match.group(1).replace(',', ''))
-                                        if final_balance > 1000000.1:
+                                        current_profit = final_balance - 1000000
+                                        if current_profit > 0.1:
                                             final_test_passed = True
-                                            self.result['profit'] = final_balance - 1000000
-                                            print(f"   ✅ Exploit successful! Profit: {self.result['profit']:.4f}")
+                                            self.result['profit'] = current_profit
+                                            
+                                            # Track best profit
+                                            if current_profit > best_profit:
+                                                best_profit = current_profit
+                                                best_profit_turn = turn
+                                                print(f"   ✅ NEW BEST PROFIT: {best_profit:.4f} (Turn {turn})")
+                                            else:
+                                                print(f"   ✅ Profit: {current_profit:.4f} (Best: {best_profit:.4f} at Turn {best_profit_turn})")
+                                            
+                                            # Add profit feedback to tool result for LLM
+                                            tool_result.output += f"\n\n💰 PROFIT UPDATE:\n- Current profit: {current_profit:.4f}\n- Best profit so far: {best_profit:.4f} (Turn {best_profit_turn})\n- Keep iterating to MAXIMIZE profit!"
                     
                     # Add tool results as a user message
                     if tool_results_text:
@@ -939,6 +1144,16 @@ class HackerController:
                         }
                         self.messages.append(tool_results_msg)
                         self._record_turn_messages(turn, [tool_results_msg])
+                        
+                        # Extract and save key context for compression
+                        # This preserves code snippets, paths, addresses for future turns
+                        if self.enable_compression:
+                            key_context = self._extract_key_context(
+                                tool_results_text, 
+                                response_content
+                            )
+                            if any(key_context.values()):
+                                self.turn_contexts[turn] = key_context
                 
                 else:
                     # Regular text response (no tool calls)
@@ -1017,10 +1232,11 @@ class HackerController:
                 consecutive_errors = 0
                 last_error = None
                 
-                # Check if done
+                # Track success but DON'T stop - continue to maximize profit
                 if final_test_passed:
                     self.result['final_success'] = True
-                    break
+                    # Don't break - continue running to maximize profit
+                    # LLM will keep iterating until time/turns limit
                 
             except Exception as e:
                 error_str = str(e)
@@ -1087,12 +1303,20 @@ class HackerController:
             )
             if success:
                 profit = metrics.get('final_balance', 0) - 1000000
-                self.result['profit'] = profit
+                if profit > best_profit:
+                    best_profit = profit
+                    best_profit_turn = turn + 1
                 # Only mark as success if profit >= 0.1 (actual exploit success)
                 if profit >= 0.1:
                     self.result['final_success'] = True
                 else:
                     print(f"   ⚠️ Test passed but profit ({profit:.4f}) < 0.1, not counting as success")
+        
+        # Use best profit as final result
+        if best_profit > 0:
+            self.result['profit'] = best_profit
+            self.result['best_profit_turn'] = best_profit_turn
+            print(f"\n💰 Best profit achieved: {best_profit:.4f} at Turn {best_profit_turn}")
         
         # Print summary
         self._print_summary()
@@ -1136,14 +1360,23 @@ class HackerController:
         
         # Build summary section for turns 1 to n-2
         # Note: Turn 1 summary covers LLM's actions, not the initial user message
+        # Enhanced: Include key context (code, paths, addresses) to prevent information loss
         summary_parts = []
         for turn_num in range(1, current_turn - 1):
             if turn_num in self.turn_summaries:
-                summary_parts.append(f"[Turn {turn_num} Summary]: {self.turn_summaries[turn_num]}")
+                summary_text = f"[Turn {turn_num} Summary]: {self.turn_summaries[turn_num]}"
+                
+                # Add key context if available
+                if turn_num in self.turn_contexts:
+                    context_str = self._format_context_for_compression(self.turn_contexts[turn_num])
+                    if context_str:
+                        summary_text += f"\n{context_str}"
+                
+                summary_parts.append(summary_text)
         
         if summary_parts:
-            # Add a single user message with all historical summaries
-            history_content = "=== HISTORICAL CONTEXT (Compressed) ===\n\n" + "\n\n".join(summary_parts) + "\n\n=== END HISTORICAL CONTEXT ==="
+            # Add a single user message with all historical summaries and contexts
+            history_content = "=== HISTORICAL CONTEXT (Compressed with Key Details) ===\n\n" + "\n\n".join(summary_parts) + "\n\n=== END HISTORICAL CONTEXT ==="
             compressed.append({
                 "role": "user",
                 "content": history_content
@@ -1218,9 +1451,114 @@ class HackerController:
         
         return None
     
+    def _extract_key_context(self, tool_results: List[str], assistant_content: str = "") -> Dict[str, Any]:
+        """
+        Extract key context from tool results to preserve during compression.
+        
+        Extracts:
+        - Code snippets (function signatures, key logic)
+        - File paths (contract locations)
+        - Addresses (contract addresses, pool addresses)
+        - Function names and signatures
+        - Key error messages
+        
+        Args:
+            tool_results: List of tool result strings
+            assistant_content: LLM's response content
+            
+        Returns:
+            Dict with extracted context
+        """
+        context = {
+            'code_snippets': [],
+            'file_paths': [],
+            'addresses': [],
+            'function_signatures': [],
+            'key_findings': [],
+        }
+        
+        all_content = "\n".join(tool_results) + "\n" + assistant_content
+        
+        # Extract Ethereum addresses (0x followed by 40 hex chars)
+        addresses = set(re.findall(r'0x[a-fA-F0-9]{40}', all_content))
+        context['addresses'] = list(addresses)[:10]  # Limit to 10 addresses
+        
+        # Extract file paths (absolute paths to .sol files)
+        paths = set(re.findall(r'/[^\s]+\.sol', all_content))
+        context['file_paths'] = list(paths)[:5]  # Limit to 5 paths
+        
+        # Extract function signatures from Solidity code
+        func_patterns = [
+            r'function\s+(\w+)\s*\([^)]*\)\s*(?:public|external|internal|private)?[^{]*',
+        ]
+        for pattern in func_patterns:
+            matches = re.findall(pattern, all_content)
+            for match in matches[:5]:  # Limit to 5 function names
+                if match not in context['function_signatures']:
+                    context['function_signatures'].append(match)
+        
+        # Extract code blocks (Solidity functions with bodies, max 20 lines each)
+        code_block_pattern = r'(function\s+\w+\s*\([^)]*\)[^{]*\{[^}]{1,1000}\})'
+        code_blocks = re.findall(code_block_pattern, all_content, re.DOTALL)
+        for block in code_blocks[:3]:  # Limit to 3 code blocks
+            # Trim to max 20 lines
+            lines = block.split('\n')[:20]
+            if len(lines) == 20:
+                lines.append('    // ... truncated ...')
+            context['code_snippets'].append('\n'.join(lines))
+        
+        # Extract key error patterns
+        error_patterns = [
+            r'(Pancake:\s*\w+)',
+            r'(Revert\s+\w+)',
+            r'(Error:\s*[^\n]+)',
+            r'(revert\s+\w+)',
+        ]
+        for pattern in error_patterns:
+            matches = re.findall(pattern, all_content, re.IGNORECASE)
+            for match in matches[:3]:
+                if match not in context['key_findings']:
+                    context['key_findings'].append(match)
+        
+        return context
+    
+    def _format_context_for_compression(self, context: Dict[str, Any]) -> str:
+        """
+        Format extracted context for inclusion in compressed history.
+        
+        Args:
+            context: Dict with extracted context
+            
+        Returns:
+            Formatted context string
+        """
+        parts = []
+        
+        if context.get('file_paths'):
+            parts.append(f"  Paths: {', '.join(context['file_paths'][:3])}")
+        
+        if context.get('addresses'):
+            parts.append(f"  Addresses: {', '.join(context['addresses'][:5])}")
+        
+        if context.get('function_signatures'):
+            parts.append(f"  Functions: {', '.join(context['function_signatures'][:5])}")
+        
+        if context.get('code_snippets'):
+            for i, snippet in enumerate(context['code_snippets'][:2]):
+                # Only include first 10 lines of each snippet
+                snippet_lines = snippet.split('\n')[:10]
+                if len(snippet_lines) == 10:
+                    snippet_lines.append('    // ...')
+                parts.append(f"  Code[{i+1}]:\n```solidity\n{chr(10).join(snippet_lines)}\n```")
+        
+        if context.get('key_findings'):
+            parts.append(f"  Findings: {', '.join(context['key_findings'][:3])}")
+        
+        return '\n'.join(parts) if parts else ""
+    
     def _parse_text_tool_calls(self, content: str) -> List[Dict]:
         """
-        Parse tool calls from text content.
+        Parse tool calls from text content using strict delimiter-based parsing.
         
         Expected format:
         [ACTION]:
@@ -1229,8 +1567,13 @@ class HackerController:
         <param2>: <value2>
         [/ACTION]
         
-        IMPORTANT: For write_file, 'content' parameter captures ALL remaining lines
-        until [/ACTION], preserving original formatting.
+        For multiline parameters (content, old_str, new_str), captures ALL content
+        until the next STRICT parameter declaration or [/ACTION].
+        
+        STRICT RULES:
+        1. Parameter names MUST be from the whitelist
+        2. Parameter declaration MUST be at line start (after optional whitespace)
+        3. For multiline params, only switch on exact whitelist match at line start
         
         Args:
             content: Response content string
@@ -1263,10 +1606,20 @@ class HackerController:
             'write_file': 'write_file',
             'write': 'write_file',
             'create_file': 'write_file',
+            'get_pair': 'get_pair',
+            'getpair': 'get_pair',
+            'pair': 'get_pair',
         }
         
-        # Parameters that capture ALL remaining content until [/ACTION]
-        # These params should NOT be split on ':' characters in their content
+        # STRICT parameter whitelist - only these are valid parameter names
+        valid_params = {
+            'path', 'command', 'cmd', 'file', 'filepath', 'file_path',
+            'content', 'old_str', 'new_str', 
+            'token0', 'token1',
+            'start_line', 'end_line', 'line', 'lines',
+        }
+        
+        # Parameters that capture ALL remaining content until next valid param or [/ACTION]
         multiline_content_params = {'content', 'new_str', 'old_str'}
         
         for match in matches:
@@ -1282,69 +1635,67 @@ class HackerController:
             args = {}
             current_param = None
             current_value_lines = []
-            in_multiline_content = False  # Flag for content/new_str params
+            in_multiline_content = False
             
             for i, line in enumerate(lines[1:], start=1):
-                # For multiline content params, preserve original line (don't strip)
-                if in_multiline_content:
-                    # Once we're in content mode, ALL remaining lines are content
-                    current_value_lines.append(line)
-                    continue
-                
                 stripped_line = line.strip()
-                if not stripped_line:
-                    # Empty lines in non-content context can be continuation
-                    if current_param and current_param not in multiline_content_params:
-                        current_value_lines.append('')
-                    continue
                 
-                # Check if this is a new parameter
-                # Valid param format: "paramname: value" where paramname is alphanumeric
-                is_new_param = False
+                # Check if this line is a STRICT parameter declaration
+                # Must match: "param_name:" at start of line (with optional leading whitespace)
+                is_valid_param_decl = False
+                detected_param = None
+                remaining_after_colon = ""
+                
                 if ':' in stripped_line:
                     colon_idx = stripped_line.index(':')
                     potential_param = stripped_line[:colon_idx].strip().lower()
-                    # Check if it looks like a parameter name (no spaces, alphanumeric/underscore)
-                    if potential_param and all(c.isalnum() or c == '_' for c in potential_param):
-                        # Valid parameter names we expect
-                        valid_params = {'path', 'command', 'content', 'old_str', 'new_str', 'file', 'cmd'}
-                        if potential_param in valid_params or len(potential_param) <= 15:
-                            is_new_param = True
+                    
+                    # STRICT CHECK: Must be in whitelist AND alphanumeric/underscore only
+                    if (potential_param in valid_params and 
+                        potential_param and 
+                        all(c.isalnum() or c == '_' for c in potential_param)):
+                        is_valid_param_decl = True
+                        detected_param = potential_param
+                        remaining_after_colon = stripped_line[colon_idx + 1:]
                 
-                if is_new_param:
-                    # Save previous parameter if exists
+                # Handle state transitions
+                if is_valid_param_decl:
+                    # Save previous parameter
                     if current_param:
                         value = '\n'.join(current_value_lines)
-                        # Preserve formatting for content params, strip for others
                         if current_param not in multiline_content_params:
                             value = value.strip()
                         args[current_param] = value
                     
-                    # Parse new parameter
-                    colon_idx = stripped_line.index(':')
-                    current_param = stripped_line[:colon_idx].strip().lower()
-                    remaining = stripped_line[colon_idx+1:]
+                    # Start new parameter
+                    current_param = detected_param
+                    in_multiline_content = (detected_param in multiline_content_params)
                     
-                    # Check if this is a multiline content param
-                    if current_param in multiline_content_params:
-                        in_multiline_content = True
-                        # Start with the remaining content after "content:"
-                        if remaining.strip():
-                            current_value_lines = [remaining]
+                    if in_multiline_content:
+                        # For multiline params, start collecting (include remaining if non-empty)
+                        if remaining_after_colon.strip():
+                            current_value_lines = [remaining_after_colon]
                         else:
                             current_value_lines = []
-                        # Also capture all remaining lines in the match
-                        # They will be added in subsequent iterations
                     else:
-                        current_value_lines = [remaining.strip()]
+                        # For single-line params, just take the value
+                        current_value_lines = [remaining_after_colon.strip()]
+                
+                elif in_multiline_content:
+                    # In multiline mode: append line as-is (preserve formatting)
+                    current_value_lines.append(line)
+                
                 elif current_param:
-                    # Continuation of previous value
-                    current_value_lines.append(stripped_line)
+                    # In single-line mode: continuation line
+                    if stripped_line:
+                        current_value_lines.append(stripped_line)
+                
+                # Skip empty lines outside of multiline mode
+                # (already handled above)
             
             # Save last parameter
             if current_param:
                 value = '\n'.join(current_value_lines)
-                # Preserve formatting for content params, strip for others
                 if current_param not in multiline_content_params:
                     value = value.strip()
                 args[current_param] = value
@@ -1489,12 +1840,12 @@ class HackerController:
                         context_parts.append(f"\n[TURN {turn_num} INPUT MESSAGES]:")
                         for msg in relevant_msgs:
                             role = msg.get('role', 'unknown').upper()
-                            content = msg.get('content', '')[:2000]  # Limit content length
+                            content = msg.get('content', '')  # No truncation - full output preserved for summary
                             context_parts.append(f"  [{role}]: {content}")
                 
                 # Include LLM output
                 if 'llm_output' in raw_data:
-                    output = raw_data['llm_output'][:3000]  # Limit output length
+                    output = raw_data['llm_output']  # No truncation - full output preserved for summary
                     context_parts.append(f"\n[TURN {turn_num} LLM OUTPUT]:\n{output}")
                 
                 # Include tool calls
@@ -1503,7 +1854,7 @@ class HackerController:
                     for tc in raw_data['tool_calls']:
                         tc_name = tc.get('name', 'unknown')
                         tc_args = tc.get('args', {})
-                        context_parts.append(f"  - {tc_name}: {str(tc_args)[:500]}")
+                        context_parts.append(f"  - {tc_name}: {str(tc_args)}")  # No truncation
                 
                 # Include tool results
                 if 'tool_results' in raw_data and raw_data['tool_results']:
@@ -1513,7 +1864,7 @@ class HackerController:
                             tool_name = tool_result.get('tool', 'unknown')
                             result_output = tool_result.get('output', '')
                             if result_output:
-                                result_output = result_output[:1500]  # Limit
+                                # No truncation - full output preserved for summary
                                 context_parts.append(f"  [{tool_name}]: {result_output}")
                 
                 context_parts.append(f"=== END TURN {turn_num} ===\n")

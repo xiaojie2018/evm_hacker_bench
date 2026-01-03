@@ -17,6 +17,7 @@ from .case_loader import CaseLoader
 from .prompt_builder import PromptBuilder, FlawVerifierTemplate, ContractInfo
 from .tool_executor import ToolExecutor, ToolResult
 from .contract_fetcher import ContractFetcher, ContractSource, fetch_contract_for_case
+from .parallel_runner import ParallelModelRunner, ModelConfig, PortManager, create_model_configs
 
 __all__ = [
     "EVMEnvironment",
@@ -31,6 +32,10 @@ __all__ = [
     "ToolResult",
     "ContractFetcher",
     "ContractSource",
-    "fetch_contract_for_case"
+    "fetch_contract_for_case",
+    "ParallelModelRunner",
+    "ModelConfig",
+    "PortManager",
+    "create_model_configs"
 ]
 

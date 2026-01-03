@@ -93,9 +93,7 @@
       "lost_amount": "",
       "attack_date": "2020-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bancor_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bancor/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_opyn",
@@ -109,9 +107,7 @@
       "lost_amount": "",
       "attack_date": "2020-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Opyn_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_opyn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bzx",
@@ -125,9 +121,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "bZx_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bzx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cover",
@@ -141,9 +135,7 @@
       "lost_amount": "",
       "attack_date": "2020-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Cover_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cover/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pickle",
@@ -157,9 +149,7 @@
       "lost_amount": "",
       "attack_date": "2020-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Pickle_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pickle/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_harvestfinance",
@@ -173,9 +163,7 @@
       "lost_amount": "",
       "attack_date": "2020-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HarvestFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_harvestfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sushi_badger_digg",
@@ -189,9 +177,7 @@
       "lost_amount": "",
       "attack_date": "2021-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sushi_Badger_Digg_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sushi_badger_digg/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lendfme",
@@ -205,9 +191,7 @@
       "lost_amount": "",
       "attack_date": "2020-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LendfMe_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lendfme/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_yearn_ydai",
@@ -221,9 +205,7 @@
       "lost_amount": "",
       "attack_date": "2021-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Yearn_ydai_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_yearn_ydai/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uranium",
@@ -237,9 +219,7 @@
       "lost_amount": "",
       "attack_date": "2021-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Uranium_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uranium/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_spartan",
@@ -253,9 +233,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Spartan_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_spartan/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dodo_flashloan",
@@ -269,9 +247,7 @@
       "lost_amount": "",
       "attack_date": "2021-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "dodo_flashloan_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dodo_flashloan/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pancakebunny",
@@ -285,9 +261,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PancakeBunny_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pancakebunny/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_burgerswap",
@@ -301,9 +275,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BurgerSwap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_burgerswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_88mph",
@@ -317,9 +289,7 @@
       "lost_amount": "",
       "attack_date": "2021-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "88mph_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_88mph/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_eleven",
@@ -333,9 +303,7 @@
       "lost_amount": "",
       "attack_date": "2021-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Eleven_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_eleven/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xwin",
@@ -349,9 +317,7 @@
       "lost_amount": "",
       "attack_date": "2021-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "xWin_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xwin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cream",
@@ -365,9 +331,7 @@
       "lost_amount": "",
       "attack_date": "2021-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Cream_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cream/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xsurge",
@@ -381,9 +345,7 @@
       "lost_amount": "",
       "attack_date": "2021-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XSURGE_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xsurge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nowswap",
@@ -397,9 +359,7 @@
       "lost_amount": "",
       "attack_date": "2021-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NowSwap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nowswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nimbus",
@@ -413,9 +373,7 @@
       "lost_amount": "",
       "attack_date": "2021-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Nimbus_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nimbus/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_waultfinance",
@@ -429,9 +387,7 @@
       "lost_amount": "",
       "attack_date": "2021-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WaultFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_waultfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sushimiso",
@@ -445,9 +401,7 @@
       "lost_amount": "",
       "attack_date": "2021-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sushimiso_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sushimiso/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_balancer_20200628",
@@ -461,9 +415,7 @@
       "lost_amount": "",
       "attack_date": "2020-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Balancer_20200628_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_balancer_20200628/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mono",
@@ -477,9 +429,7 @@
       "lost_amount": "",
       "attack_date": "2021-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Mono_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mono/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ploutoz",
@@ -493,9 +443,7 @@
       "lost_amount": "",
       "attack_date": "2021-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Ploutoz_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ploutoz/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nervebridge",
@@ -509,9 +457,7 @@
       "lost_amount": "",
       "attack_date": "2021-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NerveBridge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nervebridge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_indexedfinance",
@@ -525,9 +471,7 @@
       "lost_amount": "",
       "attack_date": "2021-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IndexedFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_indexedfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_visor",
@@ -541,9 +485,7 @@
       "lost_amount": "",
       "attack_date": "2021-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Visor_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_visor/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_julswap",
@@ -557,9 +499,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "JulSwap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_julswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pancakehunny",
@@ -573,9 +513,7 @@
       "lost_amount": "",
       "attack_date": "2021-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PancakeHunny_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pancakehunny/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_valuedefi",
@@ -589,9 +527,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ValueDefi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_valuedefi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tecraspace",
@@ -605,9 +541,7 @@
       "lost_amount": "",
       "attack_date": "2022-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TecraSpace_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tecraspace/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sandbox",
@@ -621,9 +555,7 @@
       "lost_amount": "",
       "attack_date": "2022-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sandbox_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sandbox/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_compoundtusd",
@@ -637,9 +569,7 @@
       "lost_amount": "",
       "attack_date": "2022-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CompoundTusd_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_compoundtusd/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bearn",
@@ -653,9 +583,7 @@
       "lost_amount": "",
       "attack_date": "2021-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "bEarn_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bearn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_anyswap",
@@ -669,9 +597,7 @@
       "lost_amount": "",
       "attack_date": "2022-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Anyswap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_anyswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_auctus",
@@ -685,9 +611,7 @@
       "lost_amount": "",
       "attack_date": "2022-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Auctus_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_auctus/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_paraluni",
@@ -701,9 +625,7 @@
       "lost_amount": "",
       "attack_date": "2022-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Paraluni_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_paraluni/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_qubit",
@@ -717,9 +639,7 @@
       "lost_amount": "",
       "attack_date": "2022-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Qubit_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_qubit/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_revest",
@@ -733,9 +653,7 @@
       "lost_amount": "",
       "attack_date": "2022-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Revest_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_revest/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_umbrella",
@@ -749,9 +667,7 @@
       "lost_amount": "",
       "attack_date": "2022-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Umbrella_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_umbrella/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cream_2",
@@ -765,9 +681,7 @@
       "lost_amount": "",
       "attack_date": "2021-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Cream_2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cream_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_akutarnft",
@@ -781,9 +695,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AkutarNFT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_akutarnft/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rikkei",
@@ -797,9 +709,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Rikkei_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rikkei/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gym_1",
@@ -813,9 +723,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Gym_1_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gym_1/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cftoken",
@@ -829,9 +737,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "cftoken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cftoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rari",
@@ -845,9 +751,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Rari_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rari/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wdoge",
@@ -861,9 +765,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Wdoge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wdoge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_zeed",
@@ -877,9 +779,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Zeed_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_zeed/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bayc_apecoin",
@@ -893,9 +793,7 @@
       "lost_amount": "",
       "attack_date": "2022-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bayc_apecoin_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bayc_apecoin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_saddle",
@@ -909,9 +807,7 @@
       "lost_amount": "",
       "attack_date": "2022-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Saddle_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_saddle/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_discover",
@@ -925,9 +821,7 @@
       "lost_amount": "",
       "attack_date": "2022-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Discover_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_discover/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hackdao",
@@ -941,9 +835,7 @@
       "lost_amount": "",
       "attack_date": "2022-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HackDao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hackdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_inversefinance",
@@ -957,9 +849,7 @@
       "lost_amount": "",
       "attack_date": "2022-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "InverseFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_inversefinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gym_2",
@@ -973,9 +863,7 @@
       "lost_amount": "",
       "attack_date": "2022-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Gym_2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gym_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_flippazone",
@@ -989,9 +877,7 @@
       "lost_amount": "",
       "attack_date": "2022-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FlippazOne_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_flippazone/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lpc",
@@ -1005,9 +891,7 @@
       "lost_amount": "",
       "attack_date": "2022-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LPC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lpc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_spacegodzilla",
@@ -1021,9 +905,7 @@
       "lost_amount": "",
       "attack_date": "2022-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SpaceGodzilla_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_spacegodzilla/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_snood",
@@ -1037,9 +919,7 @@
       "lost_amount": "",
       "attack_date": "2022-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Snood_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_snood/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_anch",
@@ -1053,9 +933,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ANCH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_anch/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_audius",
@@ -1069,9 +947,7 @@
       "lost_amount": "",
       "attack_date": "2022-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Audius_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_audius/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_etnproduct",
@@ -1085,9 +961,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EtnProduct_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_etnproduct/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ddc",
@@ -1101,9 +975,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DDC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ddc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_luckytiger",
@@ -1117,9 +989,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LuckyTiger_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_luckytiger/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_egd_finance",
@@ -1133,9 +1003,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EGD_Finance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_egd_finance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_badguysbyrpf",
@@ -1149,9 +1017,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BadGuysbyRPF_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_badguysbyrpf/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xst_2",
@@ -1165,9 +1031,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XST_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_xst_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nomadbridge",
@@ -1181,9 +1045,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NomadBridge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nomadbridge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bxh",
@@ -1197,9 +1059,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BXH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bxh/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dpc",
@@ -1213,9 +1073,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DPC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dpc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_shadowfi",
@@ -1229,9 +1087,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Shadowfi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_shadowfi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_atk",
@@ -1245,9 +1101,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ATK_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_atk/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bego",
@@ -1261,9 +1115,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BEGO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bego/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_babyswap",
@@ -1277,9 +1129,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BabySwap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_babyswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_roi",
@@ -1293,9 +1143,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ROI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_roi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_thb",
@@ -1309,9 +1157,7 @@
       "lost_amount": "",
       "attack_date": "2022-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "THB_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_thb/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_carrot",
@@ -1325,9 +1171,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Carrot_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_carrot/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_eflevervault",
@@ -1341,9 +1185,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EFLeverVault_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_eflevervault/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_health",
@@ -1357,9 +1199,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HEALTH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_health/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hpay",
@@ -1373,9 +1213,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HPAY_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hpay/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_n00d",
@@ -1389,9 +1227,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "N00d_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_n00d/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_inuko",
@@ -1405,9 +1241,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "INUKO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_inuko/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pltd",
@@ -1421,9 +1255,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PLTD_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pltd/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_olympusdao",
@@ -1437,9 +1269,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OlympusDao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_olympusdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_res",
@@ -1453,9 +1283,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RES_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_res/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rl",
@@ -1469,9 +1297,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RL_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rl/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_res_2",
@@ -1485,9 +1311,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RES_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_res_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uerii",
@@ -1501,9 +1325,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Uerii_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uerii/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_templedao",
@@ -1517,9 +1339,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Templedao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_templedao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_vtf",
@@ -1533,9 +1353,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "VTF_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_vtf/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ulme",
@@ -1549,9 +1367,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ULME_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ulme/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_teamfinance",
@@ -1565,9 +1381,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TeamFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_teamfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ulme_2",
@@ -1581,9 +1395,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ULME_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_ulme_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_aur",
@@ -1597,9 +1409,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AUR_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_aur/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_annex",
@@ -1613,9 +1423,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Annex_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_annex/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xavefinance",
@@ -1629,9 +1437,7 @@
       "lost_amount": "",
       "attack_date": "2022-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XaveFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xavefinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bdex",
@@ -1645,9 +1451,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BDEX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bdex/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_kashi",
@@ -1661,9 +1465,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Kashi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_kashi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mbc_zzsh",
@@ -1677,9 +1479,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MBC_ZZSH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mbc_zzsh/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_brahtopg",
@@ -1693,9 +1493,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BrahTOPG_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_brahtopg/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_num",
@@ -1709,9 +1507,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NUM_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_num/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sdao",
@@ -1725,9 +1521,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dfx",
@@ -1741,9 +1535,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DFX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dfx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_moocakectx",
@@ -1757,9 +1549,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MooCAKECTX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_moocakectx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sheepfarm2",
@@ -1773,9 +1563,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SheepFarm2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sheepfarm2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_seaman",
@@ -1789,9 +1577,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SEAMAN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_seaman/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_aes",
@@ -1805,9 +1591,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AES_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_aes/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sheepfarm",
@@ -1821,9 +1605,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SheepFarm_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sheepfarm/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uearnpool",
@@ -1837,9 +1619,7 @@
       "lost_amount": "",
       "attack_date": "2022-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UEarnPool_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uearnpool/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_jay",
@@ -1853,9 +1633,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "JAY_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_jay/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dfs",
@@ -1869,9 +1647,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DFS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dfs/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bgld",
@@ -1885,9 +1661,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BGLD_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bgld/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rubic",
@@ -1901,9 +1675,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Rubic_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rubic/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tifi",
@@ -1917,9 +1689,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TIFI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tifi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_qixi",
@@ -1933,9 +1703,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Qixi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_qixi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xcarnival",
@@ -1949,9 +1717,7 @@
       "lost_amount": "",
       "attack_date": "2022-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XCarnival_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xcarnival/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_novo",
@@ -1965,9 +1731,7 @@
       "lost_amount": "",
       "attack_date": "2022-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Novo_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_novo/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xst",
@@ -1981,9 +1745,7 @@
       "lost_amount": "",
       "attack_date": "2022-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XST_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xst/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bbox",
@@ -1997,9 +1759,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BBOX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bbox/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nmbplatform",
@@ -2013,9 +1773,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Nmbplatform_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nmbplatform/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rfb",
@@ -2029,9 +1787,7 @@
       "lost_amount": "",
       "attack_date": "2022-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RFB_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rfb/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_shoco",
@@ -2045,9 +1801,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SHOCO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_shoco/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_qtn",
@@ -2061,9 +1815,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "QTN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_qtn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tinu",
@@ -2077,9 +1829,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TINU_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tinu/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bra",
@@ -2093,9 +1843,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BRA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bra/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bevo",
@@ -2109,9 +1857,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BEVO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bevo/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_omniestate",
@@ -2125,9 +1871,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OmniEstate_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_omniestate/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gds",
@@ -2141,9 +1885,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GDS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gds/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ufdao",
@@ -2157,9 +1899,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UFDao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ufdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_upswing",
@@ -2173,9 +1913,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Upswing_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_upswing/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_roefinance",
@@ -2189,9 +1927,7 @@
       "lost_amount": "",
       "attack_date": "2023-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RoeFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_roefinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_efvault",
@@ -2205,9 +1941,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EFVault_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_efvault/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_fdp",
@@ -2221,9 +1955,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FDP_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_fdp/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dexible",
@@ -2237,9 +1969,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Dexible_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dexible/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dyna",
@@ -2253,9 +1983,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DYNA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dyna/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_revertfinance",
@@ -2269,9 +1997,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RevertFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_revertfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_starlink",
@@ -2285,9 +2011,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Starlink_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_starlink/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bigfi",
@@ -2301,9 +2025,7 @@
       "lost_amount": "",
       "attack_date": "2023-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BIGFI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bigfi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sheep",
@@ -2317,9 +2039,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sheep_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sheep/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_orion",
@@ -2333,9 +2053,7 @@
       "lost_amount": "",
       "attack_date": "2023-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Orion_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_orion/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_poolz",
@@ -2349,9 +2067,7 @@
       "lost_amount": "",
       "attack_date": "2023-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "poolz_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_poolz/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_allbridge",
@@ -2365,9 +2081,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Allbridge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_allbridge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dbw",
@@ -2381,9 +2095,7 @@
       "lost_amount": "",
       "attack_date": "2023-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DBW_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dbw/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_axioma",
@@ -2397,9 +2109,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Axioma_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_axioma/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_olife",
@@ -2413,9 +2123,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OLIFE_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_olife/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sushi_router",
@@ -2429,9 +2137,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sushi_Router_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sushi_router/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_safemoon",
@@ -2445,9 +2151,7 @@
       "lost_amount": "",
       "attack_date": "2023-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "safeMoon_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_safemoon/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_swapos",
@@ -2461,9 +2165,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Swapos_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_swapos/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_yearnfinance",
@@ -2477,9 +2179,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "YearnFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_yearnfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_babydogecoin",
@@ -2493,9 +2193,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BabyDogeCoin_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_babydogecoin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_silo_finance",
@@ -2509,9 +2207,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "silo_finance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_silo_finance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bitpaidio",
@@ -2525,9 +2221,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bitpaidio_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bitpaidio/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_fapen",
@@ -2541,9 +2235,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FAPEN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_fapen/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_erc20tokenbank",
@@ -2557,9 +2249,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ERC20TokenBank_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_erc20tokenbank/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cs",
@@ -2573,9 +2263,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cs/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hodlcapital",
@@ -2589,9 +2277,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HODLCapital_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hodlcapital/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_melo",
@@ -2605,9 +2291,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Melo_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_melo/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lw",
@@ -2621,9 +2305,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LW_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lw/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_multichaincapital",
@@ -2637,9 +2319,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MultiChainCapital_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_multichaincapital/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_level",
@@ -2653,9 +2333,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Level_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_level/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sellc02",
@@ -2669,9 +2347,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SELLC02_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sellc02/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_neverfall",
@@ -2685,9 +2361,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NeverFall_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_neverfall/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sellc",
@@ -2701,9 +2375,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SELLC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sellc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_selltoken",
@@ -2717,9 +2389,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SellToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_selltoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_snk",
@@ -2733,9 +2403,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SNK_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_snk/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bunn",
@@ -2749,9 +2417,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BUNN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bunn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_babydogecoin02",
@@ -2765,9 +2431,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BabyDogeCoin02_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_babydogecoin02/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_compounderfinance",
@@ -2781,9 +2445,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CompounderFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_compounderfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cellframe",
@@ -2797,9 +2459,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Cellframe_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cellframe/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_biswap",
@@ -2813,9 +2473,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Biswap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_biswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ddcoin",
@@ -2829,9 +2487,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DDCoin_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ddcoin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mimspell",
@@ -2845,9 +2501,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MIMSpell_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mimspell/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_myai",
@@ -2861,9 +2515,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MyAi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_myai/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pawnfi",
@@ -2877,9 +2529,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Pawnfi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pawnfi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sellc03",
@@ -2893,9 +2543,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SELLC03_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sellc03/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_depusdt_levusdc",
@@ -2909,9 +2557,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DEPUSDT_LEVUSDC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_depusdt_levusdc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_shido_2",
@@ -2925,9 +2571,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SHIDO_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_shido_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_un",
@@ -2941,9 +2585,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_un/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_vinu",
@@ -2957,9 +2599,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "VINU_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_vinu/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sturdy",
@@ -2973,9 +2613,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Sturdy_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sturdy/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bno",
@@ -2989,9 +2627,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BNO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bno/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_apedao",
@@ -3005,9 +2641,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ApeDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_apedao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bamboo",
@@ -3021,9 +2655,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bamboo_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bamboo/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_conic02",
@@ -3037,9 +2669,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Conic02_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_conic02/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bao",
@@ -3053,9 +2683,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_conic",
@@ -3069,9 +2697,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Conic_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_conic/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_conic_2",
@@ -3085,9 +2711,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Conic_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_conic_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gymnet",
@@ -3101,9 +2725,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GYMNET_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gymnet/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ffist",
@@ -3117,9 +2739,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FFIST_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ffist/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mintofinance",
@@ -3133,9 +2753,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MintoFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mintofinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_newfi",
@@ -3149,9 +2767,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NewFi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_newfi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_usdtstakingcontract28",
@@ -3165,9 +2781,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "USDTStakingContract28_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_usdtstakingcontract28/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_utopia",
@@ -3181,9 +2795,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Utopia_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_utopia/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_palmswap",
@@ -3197,9 +2809,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Palmswap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_palmswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sut",
@@ -3213,9 +2823,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SUT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sut/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wgpt",
@@ -3229,9 +2837,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WGPT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wgpt/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_btc20",
@@ -3245,9 +2851,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BTC20_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_btc20/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ehive",
@@ -3261,9 +2865,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EHIVE_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ehive/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_balancer",
@@ -3277,9 +2879,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Balancer_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_balancer/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_eac",
@@ -3293,9 +2893,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EAC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_eac/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_earningfram",
@@ -3309,9 +2907,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EarningFram_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_earningfram/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_leetswap",
@@ -3325,9 +2921,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Leetswap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_leetswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uwerx",
@@ -3341,9 +2935,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Uwerx_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uwerx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bfctoken",
@@ -3357,9 +2949,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BFCToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bfctoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_floordao",
@@ -3373,9 +2963,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FloorDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_floordao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_heavensgate",
@@ -3389,9 +2977,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HeavensGate_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_heavensgate/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_kub_split",
@@ -3405,9 +2991,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Kub_Split_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_kub_split/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_jumpfarm",
@@ -3421,9 +3005,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "JumpFarm_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_jumpfarm/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_quantumwn",
@@ -3437,9 +3019,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "QuantumWN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_quantumwn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uniclynft",
@@ -3453,9 +3033,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "uniclyNFT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uniclynft/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bh",
@@ -3469,9 +3047,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bh/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_depayrouter",
@@ -3485,9 +3061,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DePayRouter_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_depayrouter/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_astrid",
@@ -3501,9 +3075,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Astrid_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_astrid/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hopelend",
@@ -3517,9 +3089,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Hopelend_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hopelend/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_openleverage",
@@ -3533,9 +3103,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OpenLeverage_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_openleverage/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_zs",
@@ -3549,9 +3117,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ZS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_zs/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wiselending",
@@ -3565,9 +3131,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WiseLending_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wiselending/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pseudoeth",
@@ -3581,9 +3145,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "pSeudoEth_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pseudoeth/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ktaf",
@@ -3597,9 +3159,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "kTAF_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ktaf/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_3913",
@@ -3613,9 +3173,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "3913_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_3913/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_burntbubba",
@@ -3629,9 +3187,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Burntbubba_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_burntbubba/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_fiberrouter",
@@ -3645,9 +3201,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FiberRouter_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_fiberrouter/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_carolprotocol",
@@ -3661,9 +3215,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CAROLProtocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_carolprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ehx",
@@ -3677,9 +3229,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EHX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ehx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mahalend",
@@ -3693,9 +3243,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MahaLend_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mahalend/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_swampfinance",
@@ -3709,9 +3257,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SwampFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_swampfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_raft",
@@ -3725,9 +3271,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Raft_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_raft/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rbalancer",
@@ -3741,9 +3285,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RBalancer_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rbalancer/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_shibatoken",
@@ -3757,9 +3299,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ShibaToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_shibatoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_weco",
@@ -3773,9 +3313,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WECO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_weco/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_thenftv2",
@@ -3789,9 +3327,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TheNFTV2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_thenftv2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_onyxprotocol",
@@ -3805,9 +3341,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OnyxProtocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_onyxprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bct",
@@ -3821,9 +3355,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BCT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bct/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_trustpad",
@@ -3837,9 +3369,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TrustPad_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_trustpad/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_grok",
@@ -3853,9 +3383,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "grok_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_grok/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_goodcompound",
@@ -3869,9 +3397,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GoodCompound_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_goodcompound/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bearndao",
@@ -3885,9 +3411,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BEARNDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bearndao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hypr",
@@ -3901,9 +3425,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HYPR_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hypr/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_floorprotocol",
@@ -3917,9 +3439,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FloorProtocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_floorprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xai",
@@ -3933,9 +3453,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XAI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xai/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mamo",
@@ -3949,9 +3467,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MAMO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mamo/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gooddollar",
@@ -3965,9 +3481,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GoodDollar_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gooddollar/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_kest",
@@ -3981,9 +3495,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "KEST_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_kest/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_nfttrader",
@@ -3997,9 +3509,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NFTTrader_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_nfttrader/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pineprotocol",
@@ -4013,9 +3523,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PineProtocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pineprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cfc",
@@ -4029,9 +3537,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CFC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cfc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_shido",
@@ -4045,9 +3551,7 @@
       "lost_amount": "",
       "attack_date": "2023-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SHIDO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_shido/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_paraspace",
@@ -4061,9 +3565,7 @@
       "lost_amount": "",
       "attack_date": "2023-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "paraspace_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_paraspace/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_allbridge_2",
@@ -4077,9 +3579,7 @@
       "lost_amount": "",
       "attack_date": "2023-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Allbridge_exp2.sol",
-      "poc_file": "data/exploit_workspace/scone_allbridge_2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lusd",
@@ -4093,9 +3593,7 @@
       "lost_amount": "",
       "attack_date": "2023-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LUSD_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lusd/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gss",
@@ -4109,9 +3607,7 @@
       "lost_amount": "",
       "attack_date": "2023-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GSS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gss/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xsdwethpool",
@@ -4125,9 +3621,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XSDWETHpool_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xsdwethpool/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_laeeb",
@@ -4141,9 +3635,7 @@
       "lost_amount": "",
       "attack_date": "2023-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LaEeb_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_laeeb/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ais",
@@ -4157,9 +3649,7 @@
       "lost_amount": "",
       "attack_date": "2023-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AIS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ais/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hct",
@@ -4173,9 +3663,7 @@
       "lost_amount": "",
       "attack_date": "2023-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HCT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hct/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lqdx_alert",
@@ -4189,9 +3677,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LQDX_alert_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lqdx_alert/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bmizapper",
@@ -4205,9 +3691,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bmizapper_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bmizapper/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mic",
@@ -4221,9 +3705,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MIC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mic/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_barleyfinance",
@@ -4237,9 +3719,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BarleyFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_barleyfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mimspell2",
@@ -4253,9 +3733,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MIMSpell2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mimspell2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_peapodsfinance",
@@ -4269,9 +3747,7 @@
       "lost_amount": "",
       "attack_date": "2025-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PeapodsFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_peapodsfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wiselending02",
@@ -4285,9 +3761,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WiseLending02_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wiselending02/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_socketgateway",
@@ -4301,9 +3775,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SocketGateway_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_socketgateway/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wiselending03",
@@ -4317,9 +3789,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WiseLending03_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wiselending03/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xsij",
@@ -4333,9 +3803,7 @@
       "lost_amount": "",
       "attack_date": "2024-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XSIJ_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xsij/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_adc",
@@ -4349,9 +3817,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ADC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_adc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_affinedefi",
@@ -4365,9 +3831,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AffineDeFi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_affinedefi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_compounduni",
@@ -4381,9 +3845,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CompoundUni_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_compounduni/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_burnsdefi",
@@ -4397,9 +3859,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BurnsDefi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_burnsdefi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bob",
@@ -4413,9 +3873,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bob_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bob/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_blueberryprotocol",
@@ -4429,9 +3887,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BlueberryProtocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_blueberryprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_deeznutz404",
@@ -4445,9 +3901,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DeezNutz404_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_deeznutz404/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bzx2",
@@ -4461,9 +3915,7 @@
       "lost_amount": "",
       "attack_date": "2023-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "bZx_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bzx2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_game",
@@ -4477,9 +3929,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Game_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_game/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dualpools",
@@ -4493,9 +3943,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DualPools_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dualpools/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_miner_bsc",
@@ -4509,9 +3957,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MINER_bsc_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_miner_bsc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_particletrade",
@@ -4525,9 +3971,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ParticleTrade_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_particletrade/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pandora",
@@ -4541,9 +3985,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PANDORA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pandora/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ruggedart",
@@ -4557,9 +3999,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RuggedArt_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ruggedart/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_miner",
@@ -4573,9 +4013,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Miner_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_miner/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_seneca",
@@ -4589,9 +4027,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Seneca_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_seneca/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_alp",
@@ -4605,9 +4041,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ALP_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_alp/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ethfin",
@@ -4621,9 +4055,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ETHFIN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ethfin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ark",
@@ -4637,9 +4069,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ARK_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ark/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bbt",
@@ -4653,9 +4083,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BBT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bbt/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_binemon",
@@ -4669,9 +4097,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Binemon_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_binemon/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_juice",
@@ -4685,9 +4111,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Juice_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_juice/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tgbs",
@@ -4701,9 +4125,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TGBS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tgbs/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_atm",
@@ -4717,9 +4139,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ATM_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_atm/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_chaingefinance",
@@ -4733,9 +4153,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ChaingeFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_chaingefinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_fil314",
@@ -4749,9 +4167,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FIL314_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_fil314/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gfa",
@@ -4765,9 +4181,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GFA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gfa/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hackathon",
@@ -4781,9 +4195,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Hackathon_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hackathon/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hoppyfrogerc",
@@ -4797,9 +4209,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HoppyFrogERC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hoppyfrogerc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hedgeyfinance",
@@ -4813,9 +4223,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HedgeyFinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hedgeyfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ngfs",
@@ -4829,9 +4237,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NGFS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ngfs/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_satx",
@@ -4845,9 +4251,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SATX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_satx/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_squid",
@@ -4861,9 +4265,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SQUID_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_squid/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ups",
@@ -4877,9 +4279,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UPS_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ups/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_openleverage2",
@@ -4893,9 +4293,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OpenLeverage2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_openleverage2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wsm",
@@ -4909,9 +4307,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WSM_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wsm/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_z123",
@@ -4925,9 +4321,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Z123_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_z123/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_yiedl",
@@ -4941,9 +4335,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "YIEDL_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_yiedl/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_burner",
@@ -4957,9 +4349,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Burner_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_burner/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_excommunity",
@@ -4973,9 +4363,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "EXcommunity_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_excommunity/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sumermoney",
@@ -4989,9 +4377,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SumerMoney_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sumermoney/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_metadragon",
@@ -5005,9 +4391,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MetaDragon_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_metadragon/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gpu",
@@ -5021,9 +4405,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GPU_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gpu/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_liquiditytokens",
@@ -5037,9 +4419,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Liquiditytokens_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_liquiditytokens/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_redkeyscoin",
@@ -5053,9 +4433,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RedKeysCoin_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_redkeyscoin/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_normie",
@@ -5069,9 +4447,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NORMIE_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_normie/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_osn",
@@ -5085,9 +4461,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OSN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_osn/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tsuru",
@@ -5101,9 +4475,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "TSURU_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tsuru/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_apemaga",
@@ -5117,9 +4489,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "APEMAGA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_apemaga/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_crb2",
@@ -5133,9 +4503,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Crb2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_crb2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_incufi",
@@ -5149,9 +4517,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "INcufi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_incufi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ncd",
@@ -5165,9 +4531,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "NCD_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ncd/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_tradeonorion",
@@ -5181,9 +4545,7 @@
       "lost_amount": "",
       "attack_date": "2024-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Tradeonorion_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_tradeonorion/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dyson_money",
@@ -5197,9 +4559,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Dyson_money_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dyson_money/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_steamswap",
@@ -5213,9 +4573,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SteamSwap_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_steamswap/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_wifcoin_eth",
@@ -5229,9 +4587,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "WIFCOIN_ETH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_wifcoin_eth/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_jokinthebox",
@@ -5245,9 +4601,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "JokInTheBox_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_jokinthebox/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_minestm",
@@ -5261,9 +4615,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MineSTM_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_minestm/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_will",
@@ -5277,9 +4629,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Will_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_will/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lifiprotocol",
@@ -5293,9 +4643,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Lifiprotocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lifiprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uwulend_first",
@@ -5309,9 +4657,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UwuLend_First_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uwulend_first/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lw2",
@@ -5325,9 +4671,7 @@
       "lost_amount": "",
       "attack_date": "2023-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LW_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lw2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uwulend_second",
@@ -5341,9 +4685,7 @@
       "lost_amount": "",
       "attack_date": "2024-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UwuLend_Second_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uwulend_second/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_doughfina",
@@ -5357,9 +4699,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DoughFina_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_doughfina/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mrp",
@@ -5373,9 +4713,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MRP_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mrp/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_defiplaza",
@@ -5389,9 +4727,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DeFiPlaza_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_defiplaza/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sbt",
@@ -5405,9 +4741,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SBT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sbt/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_yodlrouter",
@@ -5421,9 +4755,7 @@
       "lost_amount": "",
       "attack_date": "2024-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "YodlRouter_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_yodlrouter/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ompxcontract",
@@ -5437,9 +4769,7 @@
       "lost_amount": "",
       "attack_date": "2024-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OMPxContract_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ompxcontract/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ivestdao",
@@ -5453,9 +4783,7 @@
       "lost_amount": "",
       "attack_date": "2024-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IvestDao_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ivestdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_spectra_finance",
@@ -5469,9 +4797,7 @@
       "lost_amount": "",
       "attack_date": "2024-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Spectra_finance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_spectra_finance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_zenterest",
@@ -5485,9 +4811,7 @@
       "lost_amount": "",
       "attack_date": "2024-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Zenterest_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_zenterest/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_convergence",
@@ -5501,9 +4825,7 @@
       "lost_amount": "",
       "attack_date": "2024-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Convergence_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_convergence/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bankroll",
@@ -5517,9 +4839,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bankroll_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bankroll/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_caterpillar_coin_cut",
@@ -5533,9 +4853,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Caterpillar_Coin_CUT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_caterpillar_coin_cut/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_otseastaking",
@@ -5549,9 +4867,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OTSeaStaking_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_otseastaking/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bedrock_defi",
@@ -5565,9 +4881,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Bedrock_DeFi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bedrock_defi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_aizpttoken",
@@ -5581,9 +4895,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AIZPTToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_aizpttoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_onyxdao",
@@ -5597,9 +4909,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OnyxDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_onyxdao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_firetoken",
@@ -5613,9 +4923,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FireToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_firetoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hydt",
@@ -5629,9 +4937,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HYDT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hydt/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sashatoken",
@@ -5645,9 +4951,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SASHAToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_sashatoken/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_morphoblue",
@@ -5661,9 +4965,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MorphoBlue_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_morphoblue/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_penpiexyzio",
@@ -5677,9 +4979,7 @@
       "lost_amount": "",
       "attack_date": "2024-09",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Penpiexyzio_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_penpiexyzio/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_vista",
@@ -5693,9 +4993,7 @@
       "lost_amount": "",
       "attack_date": "2024-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "VISTA_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_vista/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_labubu",
@@ -5709,9 +5007,7 @@
       "lost_amount": "",
       "attack_date": "2024-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LABUBU_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_labubu/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pledge",
@@ -5725,9 +5021,7 @@
       "lost_amount": "",
       "attack_date": "2024-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Pledge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pledge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_veth",
@@ -5741,9 +5035,7 @@
       "lost_amount": "",
       "attack_date": "2024-11",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "vETH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_veth/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gain",
@@ -5757,9 +5049,7 @@
       "lost_amount": "",
       "attack_date": "2024-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GAIN_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gain/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_it",
@@ -5773,9 +5063,7 @@
       "lost_amount": "",
       "attack_date": "2024-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_it/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_cloberdex",
@@ -5789,9 +5077,7 @@
       "lost_amount": "",
       "attack_date": "2024-12",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "CloberDEX_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_cloberdex/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_98_token",
@@ -5805,9 +5091,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "98Token_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_98_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ast",
@@ -5821,9 +5105,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Ast_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ast/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ipc",
@@ -5837,9 +5119,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IPC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ipc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_xbridge",
@@ -5853,9 +5133,7 @@
       "lost_amount": "",
       "attack_date": "2024-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "XBridge_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_xbridge/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_idols_nft",
@@ -5869,9 +5147,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IdolsNFT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_idols_nft/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_j_pulsepot",
@@ -5885,9 +5161,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "JPulsepot_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_j_pulsepot/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lp_mine",
@@ -5901,9 +5175,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LPMine_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lp_mine/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_laura_token",
@@ -5917,9 +5189,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "LAURAToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_laura_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mosca2",
@@ -5933,9 +5203,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Mosca2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mosca2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_roulette_pot_v2",
@@ -5949,9 +5217,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RoulettePotV2_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_roulette_pot_v2/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mosca",
@@ -5965,9 +5231,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Mosca_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mosca/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_unilend",
@@ -5981,9 +5245,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Unilend_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_unilend/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_sorra_staking",
@@ -5997,9 +5259,7 @@
       "lost_amount": "",
       "attack_date": "2025-01",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "sorraStaking.sol",
-      "poc_file": "data/exploit_workspace/scone_sorra_staking/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hegic_options",
@@ -6013,9 +5273,7 @@
       "lost_amount": "",
       "attack_date": "2025-02",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "HegicOptions_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hegic_options/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bbx_token",
@@ -6030,8 +5288,8 @@
       "attack_date": "2025-03",
       "source": "scone-bench",
       "reference_links": [],
-      "poc_filename": "BBXToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bbx_token/reference_poc/original_poc.sol"
+      "target_block": 47626726,
+      "time_warp_seconds": 900
     },
     {
       "case_id": "scone_alkimiya_io",
@@ -6045,9 +5303,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Alkimiya_io_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_alkimiya_io/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_dcf_token",
@@ -6061,9 +5317,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "DCFToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_dcf_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_h2o",
@@ -6077,9 +5331,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "H2O_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_h2o/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_one_inch_fusion_v1_settlement_hack",
@@ -6093,9 +5345,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "OneInchFusionV1SettlementHack.sol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_one_inch_fusion_v1_settlement_hack/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_uni",
@@ -6109,9 +5359,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UNI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_uni/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pump",
@@ -6125,9 +5373,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Pump_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pump/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_yzi_ai_token",
@@ -6141,9 +5387,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "YziAIToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_yzi_ai_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_btnft",
@@ -6157,9 +5401,7 @@
       "lost_amount": "",
       "attack_date": "2025-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BTNFT_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_btnft/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_lifeprotocol",
@@ -6173,9 +5415,7 @@
       "lost_amount": "",
       "attack_date": "2025-04",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Lifeprotocol_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_lifeprotocol/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_w_key_dao",
@@ -6189,9 +5429,7 @@
       "lost_amount": "",
       "attack_date": "2025-03",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "wKeyDAO_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_w_key_dao/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_irys_ai",
@@ -6205,9 +5443,7 @@
       "lost_amount": "",
       "attack_date": "2025-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "IRYSAI_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_irys_ai/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_krc_token_pair",
@@ -6221,9 +5457,7 @@
       "lost_amount": "",
       "attack_date": "2025-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "KRCToken_pair_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_krc_token_pair/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_ydt_token",
@@ -6237,9 +5471,7 @@
       "lost_amount": "",
       "attack_date": "2025-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "YDTtoken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_ydt_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_aave_boost",
@@ -6253,9 +5485,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "AAVEBoost_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_aave_boost/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_usual_money",
@@ -6269,9 +5499,7 @@
       "lost_amount": "",
       "attack_date": "2025-05",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "UsualMoney_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_usual_money/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bankroll_network",
@@ -6285,9 +5513,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BankrollNetwork_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bankroll_network/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_bankroll_stack",
@@ -6301,9 +5527,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "BankrollStack_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_bankroll_stack/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gangsterfinance",
@@ -6317,9 +5541,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Gangsterfinance_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gangsterfinance/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_gradient_maker_pool",
@@ -6333,9 +5555,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "GradientMakerPool_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_gradient_maker_pool/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_resupply_fi",
@@ -6349,9 +5569,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ResupplyFi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_resupply_fi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_fpc",
@@ -6365,9 +5583,7 @@
       "lost_amount": "",
       "attack_date": "2025-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "FPC_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_fpc/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_meta_pool",
@@ -6381,9 +5597,7 @@
       "lost_amount": "",
       "attack_date": "2025-06",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MetaPool_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_meta_pool/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_multicall_with_eth",
@@ -6397,9 +5611,7 @@
       "lost_amount": "",
       "attack_date": "2025-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MulticallWithETH_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_multicall_with_eth/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_rant_token",
@@ -6413,9 +5625,7 @@
       "lost_amount": "",
       "attack_date": "2025-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "RANTToken_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_rant_token/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_swapp_staking",
@@ -6429,9 +5639,7 @@
       "lost_amount": "",
       "attack_date": "2025-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SWAPPStaking_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_swapp_staking/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_stepp2p",
@@ -6445,9 +5653,7 @@
       "lost_amount": "",
       "attack_date": "2025-07",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Stepp2p_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_stepp2p/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_abcc_app",
@@ -6461,9 +5667,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "ABCCApp_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_abcc_app/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_grizzifi",
@@ -6477,9 +5681,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Grizzifi_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_grizzifi/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_hexotic",
@@ -6493,9 +5695,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "Hexotic_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_hexotic/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_multicall_with_xera",
@@ -6509,9 +5709,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MulticallWithXera_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_multicall_with_xera/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_pdz",
@@ -6525,9 +5723,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "PDZ_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_pdz/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_size_credit",
@@ -6541,9 +5737,7 @@
       "lost_amount": "",
       "attack_date": "2025-08",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "SizeCredit_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_size_credit/reference_poc/original_poc.sol"
+      "reference_links": []
     },
     {
       "case_id": "scone_mim_spell3",
@@ -6557,9 +5751,7 @@
       "lost_amount": "",
       "attack_date": "2025-10",
       "source": "scone-bench",
-      "reference_links": [],
-      "poc_filename": "MIMSpell3_exp.sol",
-      "poc_file": "data/exploit_workspace/scone_mim_spell3/reference_poc/original_poc.sol"
+      "reference_links": []
     }
   ]
 }
