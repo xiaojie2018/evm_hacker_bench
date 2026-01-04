@@ -450,7 +450,7 @@ class ParallelModelRunner:
         print(f"{'='*70}")
     
     def _save_results(self, results: List[TaskResult], output_dir: Path):
-        """Save results to JSON file"""
+        """Save results to JSON file and generate summary files"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         results_file = output_dir / f"parallel_results_{timestamp}.json"
         
@@ -477,6 +477,123 @@ class ParallelModelRunner:
             }, f, indent=2)
         
         print(f"\n📁 Results saved to: {results_file}")
+        
+        # Generate summary files
+        self._generate_summary_files(results, output_dir, timestamp)
+    
+    def _generate_summary_files(self, results: List[TaskResult], output_dir: Path, timestamp: str):
+        """Generate summary_score.log and summary_detail.log"""
+        import re
+        
+        # Token prices (estimate)
+        BNB_PRICE = 700
+        ETH_PRICE = 3500
+        
+        # Generate summary_score.log
+        score_file = output_dir / "summary_score.log"
+        try:
+            with open(score_file, 'w', encoding='utf-8') as f:
+                f.write("=" * 69 + "\n")
+                f.write("EVM Hacker Bench - Model Success Rate Summary\n")
+                f.write(f"Timestamp: {timestamp}\n")
+                f.write(f"Token Prices: BNB=${BNB_PRICE}, ETH=${ETH_PRICE}\n")
+                f.write("=" * 69 + "\n\n")
+                
+                # Header
+                f.write(f"{'Model':<40} | {'Success':<8} | {'Total':<8} | {'Rate':<10} | {'Profit (Token)':<15} | {'Profit (USD)':<15} | {'Avg Time':<10} | {'Avg Turns':<10}\n")
+                f.write("-" * 41 + "|" + "-" * 10 + "|" + "-" * 10 + "|" + "-" * 12 + "|" + "-" * 16 + "|" + "-" * 16 + "|" + "-" * 12 + "|" + "-" * 10 + "\n")
+                
+                for result in sorted(results, key=lambda r: r.cases_passed, reverse=True):
+                    model_name = result.short_name or result.model_name
+                    cases_passed = result.cases_passed
+                    cases_total = result.cases_total
+                    total_profit = result.total_profit
+                    duration = result.duration_seconds
+                    
+                    rate = (cases_passed / cases_total * 100) if cases_total > 0 else 0
+                    avg_time = duration / cases_total / 60 if cases_total > 0 else 0  # minutes per case
+                    
+                    # Estimate USD profit (assume mixed BNB/ETH, use average)
+                    avg_price = (BNB_PRICE + ETH_PRICE) / 2
+                    profit_usd = total_profit * avg_price
+                    
+                    # Parse log file to get avg turns
+                    avg_turns = 0
+                    if result.log_file and Path(result.log_file).exists():
+                        try:
+                            with open(result.log_file, 'r', encoding='utf-8') as lf:
+                                content = lf.read()
+                                turns = re.findall(r'Turns: (\d+)', content)
+                                if turns:
+                                    avg_turns = sum(int(t) for t in turns) / len(turns)
+                        except Exception:
+                            pass
+                    
+                    f.write(f"{model_name:<40} | {cases_passed:<8} | {cases_total:<8} | {rate:>6.1f}%    | {total_profit:>14.4f} | ${profit_usd:>13,.0f} | {avg_time:>8.1f}m  | {avg_turns:>8.1f}\n")
+            
+            print(f"📋 Summary: {score_file}")
+        except Exception as e:
+            print(f"⚠️ Failed to generate summary_score.log: {e}")
+        
+        # Generate summary_detail.log
+        detail_file = output_dir / "summary_detail.log"
+        try:
+            with open(detail_file, 'w', encoding='utf-8') as f:
+                f.write("=" * 69 + "\n")
+                f.write("EVM Hacker Bench - Detailed Results\n")
+                f.write(f"Timestamp: {timestamp}\n")
+                f.write("=" * 69 + "\n\n")
+                
+                for result in sorted(results, key=lambda r: r.cases_passed, reverse=True):
+                    model_name = result.short_name or result.model_name
+                    full_name = result.model_name
+                    cases_passed = result.cases_passed
+                    cases_total = result.cases_total
+                    total_profit = result.total_profit
+                    duration = result.duration_seconds
+                    error = result.error
+                    log_file = result.log_file or ''
+                    
+                    rate = (cases_passed / cases_total * 100) if cases_total > 0 else 0
+                    duration_hours = duration / 3600
+                    
+                    f.write(f"Model: {full_name}\n")
+                    f.write(f"  Short Name: {model_name}\n")
+                    f.write(f"  Success: {cases_passed}/{cases_total} ({rate:.1f}%)\n")
+                    f.write(f"  Total Profit: {total_profit:.4f}\n")
+                    f.write(f"  Duration: {duration_hours:.2f} hours ({duration:.0f} seconds)\n")
+                    if error:
+                        f.write(f"  Error: {error}\n")
+                    f.write(f"  Log: {log_file}\n")
+                    f.write("\n")
+                    
+                    # Try to extract successful cases from log (only show successes)
+                    if log_file and Path(log_file).exists():
+                        try:
+                            with open(log_file, 'r', encoding='utf-8') as lf:
+                                content = lf.read()
+                                # Find successful cases with profit
+                                # Format: Case: xxx ... Success: ✅ Yes ... Profit: X.XX native tokens
+                                summaries = re.findall(
+                                    r'Case: (\S+)\s+Model:.*?Success: (✅ Yes|❌ No)\s+(?:Profit: ([\d.]+) native tokens)?',
+                                    content, re.DOTALL
+                                )
+                                
+                                # Only show successful cases
+                                success_cases = [(s[0], s[2] if len(s) > 2 and s[2] else "0") 
+                                                for s in summaries if "Yes" in s[1]]
+                                
+                                if success_cases:
+                                    f.write("  ✅ Successful Cases:\n")
+                                    for case_name, profit in success_cases:
+                                        f.write(f"    - {case_name}: Profit {profit} tokens\n")
+                                    f.write("\n")
+                        except Exception:
+                            pass
+            
+            print(f"📋 Details: {detail_file}")
+        except Exception as e:
+            print(f"⚠️ Failed to generate summary_detail.log: {e}")
 
 
 def create_model_configs(model_specs: List[str]) -> List[ModelConfig]:

@@ -447,18 +447,69 @@ def fetch_contract_for_case(
     Returns:
         (ContractSource, state_variables)
     """
-    fetcher = ContractFetcher(chain)
-    
-    source = fetcher.fetch_source(address)
-    if not source:
-        return None, {}
-    
-    # Save to directory
     contracts_dir = work_dir / "etherscan-contracts"
-    fetcher.save_to_directory(source, contracts_dir)
+    address_lower = address.lower()
+    address_dir = contracts_dir / address_lower
+    
+    # Check if local cache exists
+    source = None
+    if address_dir.exists():
+        # Find the contract directory (first subdirectory with .sol files)
+        for subdir in address_dir.iterdir():
+            if subdir.is_dir():
+                sol_files = list(subdir.glob("*.sol"))
+                abi_file = subdir / "abi.json"
+                metadata_file = subdir / "metadata.json"
+                
+                if sol_files:
+                    print(f"📥 Using cached source code for {address}")
+                    print(f"   ✓ Found cached: {subdir.name}")
+                    
+                    # Load from cache
+                    source_code = sol_files[0].read_text(encoding='utf-8')
+                    
+                    abi = []
+                    if abi_file.exists():
+                        try:
+                            abi = json.loads(abi_file.read_text(encoding='utf-8'))
+                        except:
+                            pass
+                    
+                    # Check metadata for proxy info
+                    is_proxy = False
+                    implementation_address = None
+                    if metadata_file.exists():
+                        try:
+                            metadata = json.loads(metadata_file.read_text(encoding='utf-8'))
+                            is_proxy = metadata.get('is_proxy', False)
+                            implementation_address = metadata.get('implementation_address')
+                        except:
+                            pass
+                    
+                    source = ContractSource(
+                        address=address,
+                        name=subdir.name,
+                        source_code=source_code,
+                        abi=abi,
+                        compiler_version="",
+                        is_proxy=is_proxy,
+                        implementation_address=implementation_address
+                    )
+                    break
+    
+    # Fetch from API if not cached
+    if not source:
+        fetcher = ContractFetcher(chain)
+        source = fetcher.fetch_source(address)
+        if not source:
+            return None, {}
+        
+        # Save to directory for future use
+        fetcher.save_to_directory(source, contracts_dir)
     
     # Get state if ABI available
     state = {}
+    fetcher = ContractFetcher(chain)
     if source.abi:
         state = fetcher.get_contract_state(address, source.abi, rpc_url)
     elif source.implementation_source and source.implementation_source.abi:
