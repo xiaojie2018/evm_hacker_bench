@@ -16,7 +16,7 @@ from .exploit_validator import ExploitValidator
 from .case_loader import CaseLoader
 from .prompt_builder import PromptBuilder, FlawVerifierTemplate, ContractInfo
 from .tool_executor import ToolExecutor, ToolResult
-from .contract_fetcher import ContractFetcher, ContractSource, fetch_contract_for_case
+from .contract_fetcher import ContractFetcher, ContractSource, fetch_contract_for_case, precache_contracts
 from .parallel_runner import ParallelModelRunner, ModelConfig, PortManager, create_model_configs
 
 __all__ = [

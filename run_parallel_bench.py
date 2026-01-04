@@ -41,7 +41,8 @@ from evm_hacker_bench import (
     CaseLoader,
     ParallelModelRunner,
     ModelConfig,
-    create_model_configs
+    create_model_configs,
+    precache_contracts
 )
 
 
@@ -184,6 +185,20 @@ Examples:
         help='Ethereum fork RPC URL'
     )
     
+    # Pre-cache arguments
+    parser.add_argument(
+        '--skip-precache',
+        action='store_true',
+        help='Skip pre-caching contract source code (not recommended for parallel runs)'
+    )
+    
+    parser.add_argument(
+        '--precache-delay',
+        type=float,
+        default=0.5,
+        help='Delay between API requests during pre-cache (default: 0.5s)'
+    )
+    
     args = parser.parse_args()
     
     # Get API key
@@ -251,6 +266,13 @@ Examples:
         sys.exit(1)
     
     print(f"\n✅ Running {len(cases)} cases on {len(model_configs)} models")
+    
+    # Pre-cache contract source code (serial to avoid API rate limits)
+    if not args.skip_precache:
+        workspace_dir = project_root / "data" / "exploit_workspace"
+        precache_contracts(cases, workspace_dir, delay_seconds=args.precache_delay)
+    else:
+        print("\n⚠️ Skipping pre-cache (--skip-precache specified)")
     
     # Create output directory
     if args.no_timestamp_dir:

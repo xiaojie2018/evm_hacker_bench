@@ -429,6 +429,113 @@ class ContractFetcher:
             return {}
 
 
+def precache_contracts(
+    cases: List,
+    base_dir: Path,
+    delay_seconds: float = 0.5
+) -> Dict[str, bool]:
+    """
+    Pre-cache contract source code for all cases before benchmark starts.
+    
+    This function fetches contract source code serially to avoid API rate limits,
+    and caches them locally for faster access during the actual benchmark run.
+    
+    Args:
+        cases: List of AttackCase objects
+        base_dir: Base directory for exploit workspace (e.g., data/exploit_workspace)
+        delay_seconds: Delay between API requests to avoid rate limiting
+        
+    Returns:
+        Dict mapping case_id to whether caching was successful
+    """
+    results = {}
+    
+    # Deduplicate by (chain, address) to avoid fetching same contract multiple times
+    seen = set()
+    contracts_to_fetch = []
+    
+    for case in cases:
+        key = (case.chain, case.target_address.lower())
+        if key not in seen:
+            seen.add(key)
+            contracts_to_fetch.append(case)
+    
+    print(f"\n{'='*70}")
+    print(f"📦 PRE-CACHING CONTRACT SOURCE CODE")
+    print(f"{'='*70}")
+    print(f"Total unique contracts: {len(contracts_to_fetch)}")
+    print(f"API delay: {delay_seconds}s between requests")
+    print(f"Cache directory: {base_dir}")
+    print(f"{'='*70}\n")
+    
+    cached_count = 0
+    fetched_count = 0
+    failed_count = 0
+    
+    for i, case in enumerate(contracts_to_fetch, 1):
+        address = case.target_address
+        chain = case.chain
+        case_dir = base_dir / case.case_id
+        contracts_dir = case_dir / "etherscan-contracts"
+        address_lower = address.lower()
+        address_dir = contracts_dir / address_lower
+        
+        print(f"[{i}/{len(contracts_to_fetch)}] {case.case_id} ({chain})")
+        print(f"   Address: {address}")
+        
+        # Check if already cached
+        cache_exists = False
+        if address_dir.exists():
+            for subdir in address_dir.iterdir():
+                if subdir.is_dir():
+                    sol_files = list(subdir.glob("*.sol"))
+                    if sol_files:
+                        cache_exists = True
+                        print(f"   ✅ Already cached: {subdir.name}")
+                        cached_count += 1
+                        results[case.case_id] = True
+                        break
+        
+        if cache_exists:
+            continue
+        
+        # Fetch from API
+        try:
+            fetcher = ContractFetcher(chain)
+            source = fetcher.fetch_source(address)
+            
+            if source:
+                # Save to cache directory
+                contracts_dir.mkdir(parents=True, exist_ok=True)
+                fetcher.save_to_directory(source, contracts_dir)
+                print(f"   ✅ Fetched and cached: {source.name}")
+                fetched_count += 1
+                results[case.case_id] = True
+            else:
+                print(f"   ❌ Failed to fetch (not verified?)")
+                failed_count += 1
+                results[case.case_id] = False
+                
+        except Exception as e:
+            print(f"   ❌ Error: {e}")
+            failed_count += 1
+            results[case.case_id] = False
+        
+        # Rate limiting delay (only if we made an API call)
+        if i < len(contracts_to_fetch):
+            time.sleep(delay_seconds)
+    
+    print(f"\n{'='*70}")
+    print(f"📦 PRE-CACHE COMPLETE")
+    print(f"{'='*70}")
+    print(f"Already cached: {cached_count}")
+    print(f"Newly fetched:  {fetched_count}")
+    print(f"Failed:         {failed_count}")
+    print(f"{'='*70}\n")
+    
+    return results
+
+
 def fetch_contract_for_case(
     address: str,
     chain: str,

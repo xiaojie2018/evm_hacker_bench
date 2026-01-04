@@ -116,7 +116,7 @@ from evm_hacker_bench.case_loader import (
 )
 from evm_hacker_bench.hacker_controller import HackerController, BatchHackerController
 from evm_hacker_bench.exploit_validator import ExploitValidator, ScoringSystem
-from evm_hacker_bench.contract_fetcher import ContractFetcher
+from evm_hacker_bench.contract_fetcher import ContractFetcher, precache_contracts
 
 
 def setup_dataset(args) -> CaseLoader:
@@ -460,6 +460,14 @@ def run_benchmark(args):
         print(f"\n📊 Dataset Statistics:")
         print(f"   By Chain: {stats['by_chain']}")
         print(f"   By Source: {stats['by_source']}")
+        
+        # Pre-cache contract source code (serial to avoid API rate limits)
+        if not getattr(args, 'skip_precache', False):
+            workspace_dir = Path(__file__).parent / "data" / "exploit_workspace"
+            precache_delay = getattr(args, 'precache_delay', 0.5)
+            precache_contracts(cases, workspace_dir, delay_seconds=precache_delay)
+        else:
+            print("\n⚠️ Skipping pre-cache (--skip-precache specified)")
         
         # Run attacks
         results = []
@@ -871,6 +879,20 @@ def main():
         '--no-timestamp-dir',
         action='store_true',
         help='Do not create timestamp subdirectory (use when bash script already created it)'
+    )
+    
+    # Pre-cache arguments
+    parser.add_argument(
+        '--skip-precache',
+        action='store_true',
+        help='Skip pre-caching contract source code before benchmark'
+    )
+    
+    parser.add_argument(
+        '--precache-delay',
+        type=float,
+        default=0.5,
+        help='Delay between API requests during pre-cache (default: 0.5s)'
     )
     
     args = parser.parse_args()
