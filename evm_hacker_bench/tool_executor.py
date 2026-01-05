@@ -195,6 +195,13 @@ class ToolExecutor:
                     arguments.get("token1", ""),
                     arguments.get("chain", self.chain)
                 )
+            elif tool_name == "find_swap_path":
+                result = self._find_swap_path(
+                    arguments.get("token_in", ""),
+                    arguments.get("token_out", ""),
+                    arguments.get("amount_in", 0),
+                    arguments.get("chain", self.chain)
+                )
             else:
                 result = ToolResult(
                     success=False,
@@ -939,6 +946,151 @@ class ToolExecutor:
                 success=False,
                 output="",
                 error=f"Failed to query pair: {str(e)}"
+            )
+    
+    def _find_swap_path(
+        self,
+        token_in: str,
+        token_out: str,
+        amount_in: int,
+        chain: str = None
+    ) -> ToolResult:
+        """
+        Find optimal swap path using uniswap-smart-path library
+        
+        Args:
+            token_in: Input token address (0x...)
+            token_out: Output token address (0x...)
+            amount_in: Input amount in wei
+            chain: Chain name (bsc, mainnet, etc.)
+            
+        Returns:
+            ToolResult with optimal path(s) and expected output
+        """
+        # Validate inputs
+        if not token_in:
+            return ToolResult(
+                success=False,
+                output="",
+                error="No token_in address provided"
+            )
+        
+        if not token_out:
+            return ToolResult(
+                success=False,
+                output="",
+                error="No token_out address provided"
+            )
+        
+        if not amount_in or amount_in <= 0:
+            return ToolResult(
+                success=False,
+                output="",
+                error="Invalid amount_in. Must be a positive integer (in wei)."
+            )
+        
+        # Validate address format
+        for addr, name in [(token_in, "token_in"), (token_out, "token_out")]:
+            if not addr.startswith("0x") or len(addr) != 42:
+                return ToolResult(
+                    success=False,
+                    output="",
+                    error=f"Invalid {name} address format: {addr}. Must be 0x followed by 40 hex characters."
+                )
+        
+        chain = chain or self.chain
+        rpc_url = f"http://127.0.0.1:{self.anvil_port}"
+        
+        try:
+            from .tools.uniswap_path import DEXPathFinder
+            
+            finder = DEXPathFinder(rpc_url=rpc_url, chain=chain)
+            result = finder.find_best_path(token_in, token_out, amount_in)
+            
+            if not result.get("success"):
+                error_msg = result.get("error", "Unknown error")
+                suggested = result.get("suggested_paths", [])
+                
+                if suggested:
+                    # Return suggested paths when no valid path found
+                    output_lines = [
+                        f"⚠️ No valid path found: {error_msg}",
+                        "",
+                        f"📋 Chain: {result.get('chain', chain)}",
+                        f"📋 DEX: {result.get('dex', 'Unknown')}",
+                        "",
+                        "Suggested paths to try:",
+                    ]
+                    
+                    for i, path_info in enumerate(suggested, 1):
+                        path_str = " → ".join(path_info.get("path", []))
+                        note = path_info.get("note", "")
+                        output_lines.append(f"  {i}. {note}: {path_str}")
+                    
+                    return ToolResult(
+                        success=True,
+                        output="\n".join(output_lines)
+                    )
+                
+                return ToolResult(
+                    success=False,
+                    output="",
+                    error=error_msg
+                )
+            
+            # Format successful result
+            best_path = result.get("best_path", {})
+            all_paths = result.get("all_paths", [])
+            
+            output_lines = [
+                f"✅ Optimal Swap Path Found!",
+                "",
+                f"📋 Swap Details:",
+                f"   Chain: {result.get('chain', chain)}",
+                f"   DEX: {result.get('dex', 'Unknown')}",
+                f"   Token In: {token_in}",
+                f"   Token Out: {token_out}",
+                f"   Amount In: {result.get('amount_in_formatted', amount_in / 10**18):.6f}",
+                "",
+                f"🏆 Best Path ({best_path.get('type', 'unknown')}):",
+                f"   {best_path.get('path_display', 'N/A')}",
+                f"   Expected Output: {best_path.get('amount_out_formatted', 0):.6f}",
+                "",
+            ]
+            
+            # Show all paths tried
+            if len(all_paths) > 1:
+                output_lines.append("📊 All Valid Paths (sorted by output):")
+                for i, path_info in enumerate(all_paths, 1):
+                    output_lines.append(
+                        f"   {i}. [{path_info.get('type', 'unknown')}] "
+                        f"{path_info.get('path_display', 'N/A')} → "
+                        f"{path_info.get('amount_out_formatted', 0):.6f}"
+                    )
+                output_lines.append("")
+            
+            # Add DEX addresses for reference
+            output_lines.extend([
+                "📚 DEX Addresses:",
+                f"   V2 Router: {result.get('v2_router', 'N/A')}",
+            ])
+            
+            return ToolResult(
+                success=True,
+                output="\n".join(output_lines)
+            )
+            
+        except ImportError:
+            return ToolResult(
+                success=False,
+                output="",
+                error="uniswap-smart-path library not installed. Run: pip install uniswap-smart-path"
+            )
+        except Exception as e:
+            return ToolResult(
+                success=False,
+                output="",
+                error=f"Failed to find swap path: {str(e)}"
             )
     
     def get_history(self, limit: int = 20) -> List[Dict]:
