@@ -16,6 +16,7 @@ EVM Hacker Bench is a benchmark framework that evaluates Large Language Models' 
 - **Automated Evaluation**: Fork-based testing with Foundry (anvil + forge)
 - **Detailed Metrics**: Success rate, profit/loss calculation, turn analysis
 - **Contract Pre-caching**: Automatic contract source caching to avoid API rate limits
+- **DEX Path Finding**: Optimal swap path discovery for token exchanges
 
 ## Architecture
 
@@ -32,9 +33,19 @@ EVM Hacker Bench is a benchmark framework that evaluates Large Language Models' 
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │                  HackerController                        │   │
 │  │  - Multi-turn conversation management                    │   │
-│  │  - Tool calling (bash, view_file, edit_file)            │   │
+│  │  - Tool calling (bash, view_file, find_swap_path, etc.) │   │
 │  │  - Extended thinking support                             │   │
 │  │  - Profit maximization strategy                          │   │
+│  └─────────────────────────┬───────────────────────────────┘   │
+│                            │                                    │
+│                            ▼                                    │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                    ToolExecutor                          │   │
+│  │  - bash: Shell commands (forge, cast)                    │   │
+│  │  - view_file/edit_file: File operations                  │   │
+│  │  - get_pair: DEX pair lookup                             │   │
+│  │  - find_swap_path: Optimal swap path finding             │   │
+│  │  - fetch_contract: Block explorer integration            │   │
 │  └─────────────────────────┬───────────────────────────────┘   │
 │                            │                                    │
 │                            ▼                                    │
@@ -214,11 +225,15 @@ chmod +x test/run_multi_model_bench.sh
 ./test/run_multi_model_bench.sh -bsc                    # Run BSC cases only
 ./test/run_multi_model_bench.sh -eth                    # Run ETH cases only
 ./test/run_multi_model_bench.sh -b                      # Run in background
+./test/run_multi_model_bench.sh -P 3                    # Run 3 models in parallel
 ./test/run_multi_model_bench.sh claude-haiku-4.5        # Run specific model
 ./test/run_multi_model_bench.sh --list                  # List available models
 
 # Typical usage: run recent cases (>=2025-03), all chains, 30min timeout, background
 ./test/run_multi_model_bench.sh -since 202503 -all -t 30 -b
+
+# Parallel mode: run 4 models concurrently
+./test/run_multi_model_bench.sh -P 4 -bsc -t 30 -b
 ```
 
 ### Output Files
@@ -339,6 +354,82 @@ Pre-caching Options:
   --precache-delay N                         Delay between API requests (default: 0.5s)
 ```
 
+## LLM Tools
+
+The LLM has access to the following tools during exploitation:
+
+| Tool | Description | Key Parameters |
+|------|-------------|----------------|
+| `bash` | Execute shell commands (forge, cast, etc.) | `command` |
+| `view_file` | View file contents with optional line range | `path`, `start_line`, `end_line` |
+| `write_file` | Create or overwrite entire file | `path`, `content` |
+| `edit_file` | Edit files using search/replace | `path`, `old_str`, `new_str` |
+| `fetch_contract` | Fetch verified contract source from Etherscan | `address`, `chain` |
+| `get_pair` | Get DEX pair address for two tokens | `token0`, `token1`, `chain` |
+| `find_swap_path` | **NEW** - Find optimal swap path between tokens | `token_in`, `token_out`, `amount_in`, `chain` |
+
+### find_swap_path Tool
+
+Find the optimal V2 swap path between two tokens:
+
+```
+[ACTION]:
+find_swap_path
+token_in: 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c
+token_out: 0x55d398326f99059fF775485246999027B3197955
+amount_in: 1000000000000000000
+[/ACTION]
+```
+
+**Features:**
+- Supports BSC (PancakeSwap), ETH Mainnet (Uniswap), Arbitrum (Uniswap)
+- Multi-hop path discovery via pivot tokens (WBNB/WETH, USDT, USDC, DAI, BUSD)
+- Compares direct, 2-hop, and 3-hop paths
+- Returns expected output amount for each path
+- Handles different token decimals (6 for USDC/USDT on ETH, 18 for others)
+
+**Example Output:**
+```
+✅ Optimal Swap Path Found!
+
+📋 Swap Details:
+   Chain: bsc
+   DEX: PancakeSwap
+   Token In: 0xbb4C...
+   Token Out: 0x5539...
+   Amount In: 1.000000
+
+🏆 Best Path (direct):
+   WBNB → USDT
+   Expected Output: 899.335599
+
+📊 All Valid Paths (sorted by output):
+   1. [direct] WBNB → USDT → 899.335599
+   2. [via_BUSD] WBNB → BUSD → USDT → 896.428844
+   3. [via_USDC] WBNB → USDC → USDT → 889.503991
+```
+
+### view_file Example
+
+```
+[ACTION]:
+view_file
+path: src/Exploit.sol
+start_line: 10
+end_line: 50
+[/ACTION]
+```
+
+### get_pair Example
+
+```
+[ACTION]:
+get_pair
+token0: 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c
+token1: 0x55d398326f99059fF775485246999027B3197955
+[/ACTION]
+```
+
 ## Project Structure
 
 ```
@@ -365,7 +456,7 @@ evm_hacker_bench/
 │                       └── metadata.json
 │
 ├── config/
-│   ├── system_config.json           # System prompt templates
+│   ├── system_config.json           # System prompt templates & tool definitions
 │   └── env_config_example.txt       # Environment variable examples
 │
 ├── test/
@@ -387,30 +478,7 @@ evm_hacker_bench/
         ├── file_editor.py     # File view/edit operations
         ├── slither_tool.py    # Static analysis (Slither)
         ├── solc_manager.py    # Solidity compiler management
-        └── uniswap_path.py    # DEX path finding
-```
-
-## LLM Tools
-
-The LLM has access to the following tools during exploitation:
-
-| Tool | Description |
-|------|-------------|
-| `bash` | Execute shell commands (forge, cast, etc.) |
-| `view_file` | View file contents with optional line range (`start_line`, `end_line`) |
-| `edit_file` | Edit files using search/replace |
-| `create_file` | Create new files |
-| `delete_file` | Delete files |
-
-### view_file Example
-
-```json
-{
-  "tool": "view_file",
-  "path": "src/Exploit.sol",
-  "start_line": 10,
-  "end_line": 50
-}
+        └── uniswap_path.py    # DEX path finding (V2 compatible)
 ```
 
 ## Supported Attack Categories
