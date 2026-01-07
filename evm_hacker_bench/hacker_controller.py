@@ -25,6 +25,8 @@ from .evm_env import EVMEnvironment, CHAIN_CONFIGS
 from .case_loader import AttackCase
 from .prompt_builder import PromptBuilder, FlawVerifierTemplate, ContractInfo
 from .tool_executor import ToolExecutor, ToolResult
+from .vllm_service import LLMService
+from .reward_scorer import RewardScorer, TurnLevelRewardScorer, create_scorer
 
 
 class HackerController:
@@ -112,6 +114,7 @@ class HackerController:
         
         # Initialize LLM
         self.llm = self._init_llm()
+        self.vllm_llm = LLMService()
         
         # Initialize prompt builder
         self.prompt_builder = PromptBuilder()
@@ -148,8 +151,20 @@ class HackerController:
             'tool_calls': [],
             'final_success': False,
             'profit': None,
-            'error': None
+            'error': None,
+            'reward_scores': []  # Per-turn reward scores
         }
+        
+        # Initialize reward scorer for multi-dimensional evaluation
+        self.reward_scorer = create_scorer(
+            workspace_base=str(self.work_dir),
+            llm_client=self.llm  # Use heuristic by default, set LLM client if needed
+        )
+        self.turn_level_scorer = TurnLevelRewardScorer(self.reward_scorer)
+        
+        # Current code state for tracking progress
+        self.current_poc_code: str = ""
+        self.previous_poc_code: str = ""
     
     def _init_llm(self) -> ChatOpenAI:
         """Initialize LLM client with tool calling support"""
@@ -762,6 +777,25 @@ class HackerController:
         
         return result
     
+    def _update_poc_code_state(self):
+        """
+        Read current FlawVerifier.sol code from workspace for reward scoring
+        """
+        try:
+            if hasattr(self, '_case_work_dir') and self._case_work_dir:
+                poc_path = Path(self._case_work_dir) / "flaw_verifier" / "src" / "FlawVerifier.sol"
+            else:
+                poc_path = self.work_dir / "flaw_verifier" / "src" / "FlawVerifier.sol"
+            
+            if poc_path.exists():
+                with open(poc_path, 'r') as f:
+                    self.current_poc_code = f.read()
+            else:
+                self.current_poc_code = ""
+        except Exception as e:
+            print(f"      ⚠️ Failed to read PoC code: {e}")
+            self.current_poc_code = ""
+    
     def run_attack(
         self,
         case: AttackCase,
@@ -810,6 +844,11 @@ class HackerController:
         
         # Setup environment
         work_dir = self._setup_environment(case, env)
+        self._case_work_dir = work_dir  # Store for reward scoring
+        
+        # Reset PoC code state for this case
+        self.current_poc_code = ""
+        self.previous_poc_code = ""
         
         # Initialize tool executor (with chain for fetch_contract)
         self.tool_executor = ToolExecutor(
@@ -941,6 +980,8 @@ class HackerController:
                     })
                     
                     lc_messages = self._to_langchain_messages(compressed_msgs)
+                    vllm_messages = compressed_msgs
+
                     # Show compression details
                     prev_turn = turn - 1
                     prev_turn_msg_count = len(self.turn_messages.get(prev_turn, []))
@@ -963,6 +1004,7 @@ class HackerController:
                     })
                     
                     lc_messages = self._to_langchain_messages(msgs_with_turn)
+                    vllm_messages = compressed_msgs
                 
                 # Call LLM
                 print("   Calling LLM...")
@@ -1009,6 +1051,9 @@ class HackerController:
                 start_time = time.time()
                 # Use plain LLM invocation (no function calling)
                 response = self.llm.invoke(lc_messages)
+
+                # response = self.vllm_llm.predict(vllm_messages)
+
                 llm_time = time.time() - start_time
                 
                 response_content = response.content or ""
@@ -1198,8 +1243,8 @@ class HackerController:
                         self.messages.append(user_msg)
                         self._record_turn_messages(turn + 1, [user_msg])
                     # Check if LLM is asking for guidance or is stuck
-                    elif response_content and any(phrase in response_content.lower() for phrase in 
-                        ["should i", "shall i", "would you like", "what should"]):
+                    elif response_content and any(phrase in response_content.lower() for phrase in
+                                                  ["should i", "shall i", "would you like", "what should"]):
                         # Encourage to continue
                         user_msg = {
                             "role": "user",
@@ -1232,8 +1277,77 @@ class HackerController:
                     ] if parsed_tool_calls else None,
                     'history_requested': history_requests if history_requests else None
                 }
-                self._save_raw_data(turn, raw_data)
                 
+                # === REWARD SCORING ===
+                # Score this turn for RL training
+                try:
+                    # Update current PoC code state (read from workspace)
+                    self._update_poc_code_state()
+                    
+                    # Compute turn-level reward score
+                    turn_action = json.dumps(parsed_tool_calls) if parsed_tool_calls else ""
+                    
+                    # Determine compile success and test pass from tool results
+                    turn_compile_success = False
+                    turn_test_passed = False
+                    if parsed_tool_calls:
+                        for tc in parsed_tool_calls:
+                            cmd = str(tc.get("args", {}).get("command", ""))
+                            if "forge build" in cmd:
+                                # Check last tool result for this command
+                                tool_output = tool_results_text[-1] if tool_results_text else ""
+                                if "Error" not in tool_output and "error" not in tool_output:
+                                    turn_compile_success = True
+                            if "forge test" in cmd:
+                                tool_output = tool_results_text[-1] if tool_results_text else ""
+                                if "PASS" in tool_output:
+                                    turn_test_passed = True
+                    
+                    # Get expected profit from case metadata (if available)
+                    expected_profit = getattr(self, '_expected_profit', 10000.0)
+                    
+                    reward_result = self.turn_level_scorer.score_single_turn(
+                        case_id=self.result['case_id'],
+                        turn=turn,
+                        current_code=self.current_poc_code,
+                        previous_code=self.previous_poc_code,
+                        turn_action=turn_action,
+                        compile_success=turn_compile_success,
+                        test_passed=turn_test_passed,
+                        profit=current_profit if 'current_profit' in dir() else 0.0,
+                        expected_profit=expected_profit,
+                        final_success=final_test_passed
+                    )
+                    
+                    # Store reward score
+                    self.result['reward_scores'].append({
+                        'turn': turn,
+                        'grpo_reward': reward_result['grpo_reward'],
+                        'progress_reward': reward_result['progress_reward'],
+                        'step_rewards': reward_result['step_rewards'],
+                        'dimension_scores': reward_result['dimension_scores'],
+                        'weighted_score': reward_result['multi_score'].weighted_score
+                    })
+                    raw_data['reward_scores'] = {
+                        'turn': turn,
+                        'grpo_reward': reward_result['grpo_reward'],
+                        'progress_reward': reward_result['progress_reward'],
+                        'step_rewards': reward_result['step_rewards'],
+                        'dimension_scores': reward_result['dimension_scores'],
+                        'weighted_score': reward_result['multi_score'].weighted_score
+                    }
+                    
+                    # Print reward summary
+                    print(f"   📊 Reward: {reward_result['grpo_reward']:.4f} (progress: {reward_result['progress_reward']:.4f})")
+                    
+                    # Update previous code for next turn
+                    self.previous_poc_code = self.current_poc_code
+                    
+                except Exception as reward_err:
+                    print(f"   ⚠️ Reward scoring failed: {reward_err}")
+
+                self._save_raw_data(turn, raw_data)
+
                 # Reset consecutive error counter on success
                 consecutive_errors = 0
                 last_error = None

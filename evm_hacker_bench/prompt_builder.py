@@ -131,9 +131,9 @@ the implementation source code to understand the contract logic."""
                     else:
                         state_vars_lines.append(f"- {func_name}({var_type}) - no non-zero values found in probes")
                 else:
-                value = info.get('value', 'unknown')
-                var_type = info.get('type', 'unknown')
-                state_vars_lines.append(f"- name={name} value={value} type={var_type})")
+                    value = info.get('value', 'unknown')
+                    var_type = info.get('type', 'unknown')
+                    state_vars_lines.append(f"- name={name} value={value} type={var_type})")
             values["state_variables"] = "\n".join(state_vars_lines) if state_vars_lines else "No state variables found"
         else:
             values["state_variables"] = "State variables not available - use `cast call` to query contract state"
