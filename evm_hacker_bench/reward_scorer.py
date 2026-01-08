@@ -405,28 +405,33 @@ class RewardScorer:
         reference_code = reference["code"] if reference else ""
         reference_features = reference.get("features", {}) if reference else {}
         
-        # 1. Hard metrics (deterministic)
-        result.scores.extend(self._score_hard_metrics(
-            compile_success, test_passed, profit, expected_profit
-        ))
+        # 前2轮是分析阶段，只打分析内容分数，不打代码分数
+        # turn > 2 时才计算代码相关的分数
+        min_turn = 2
+        # 1. Hard metrics (deterministic) - only meaningful after turn 2
+        if turn > min_turn:
+            result.scores.extend(self._score_hard_metrics(
+                compile_success, test_passed, profit, expected_profit
+            ))
         
-        # 2. Code similarity (only if we have code)
-        if reference_code and candidate_code:
+        # 2. Code similarity (only if we have code and turn > 2)
+        if turn > min_turn and reference_code and candidate_code:
             result.scores.append(self._score_similarity(reference_code, candidate_code))
         
-        # 3. Feature matching
-        if reference_features and candidate_code:
+        # 3. Feature matching (only after turn 2)
+        if turn > min_turn and reference_features and candidate_code:
             result.scores.extend(self._score_feature_matching(
                 reference_features, candidate_code
             ))
         
-        # 4. LLM judgment questions (code-based)
-        if reference_code and candidate_code:
+        # 4. LLM judgment questions (code-based, only after turn 2)
+        if turn > min_turn and reference_code and candidate_code:
             result.scores.extend(self._score_llm_judgments(
                 reference_code, candidate_code
             ))
         
         # 5. Analysis content scoring (for LLM reasoning/planning)
+        # 分析内容打分在所有轮次都有效
         if response_content and reference_code:
             result.scores.extend(self._score_analysis_content(
                 response_content, reference_code, reference_features
@@ -892,7 +897,7 @@ class TurnLevelRewardScorer:
         
         # Compute progress reward (improvement from previous turn)
         progress_reward = 0.0
-        if previous_code:
+        if previous_code and False:
             prev_score = self.scorer.score_turn(
                 case_id=case_id,
                 turn=turn - 1,
@@ -996,12 +1001,9 @@ if __name__ == "__main__":
     if reference:
         print("Reference PoC loaded:")
         print(f"  Path: {reference['path']}")
-        print(f"  Features: {reference['features']}")
         
-        # Test 1: Code-only scoring (no analysis)
         test_code = """
         pragma solidity ^0.8.15;
-        
         contract AttackerC {
             function attack() public {
                 for (uint256 i = 0; i < 500; i++) {
@@ -1011,65 +1013,53 @@ if __name__ == "__main__":
         }
         """
         
-        score = scorer.score_turn(
-            case_id="scone_bbx_token",
-            turn=1,
-            candidate_code=test_code,
-            compile_success=True,
-            test_passed=False,
-            profit=0.0,
-            expected_profit=11902.0
-        )
-        
-        print(f"\n=== Test 1: Code-only scoring ===")
-        print(f"Score Result (Turn {score.turn}):")
-        print(f"  Total Score: {score.total_score:.4f}")
-        print(f"  Weighted Score: {score.weighted_score:.4f}")
-        print(f"  GRPO Reward: {scorer.compute_grpo_reward(score):.4f}")
-        
-        # Test 2: With analysis content
         test_analysis = """
 I've analyzed the BBX token contract and found a vulnerability in the burn mechanism.
-
 === ATTACK PLAN ===
-VULNERABILITY TYPE: Burn mechanism abuse / Deflation token exploit
-
-The BBX token has a burn mechanism that is triggered on every transfer. 
-By calling transfer(address(this), 0) in a loop, we can repeatedly trigger the burn.
-
-ATTACK STEPS:
-Step 1: First, acquire some BBX tokens by swapping BNB -> BUSD -> BBX
-Step 2: Call IERC20(BBX).transfer(address(this), 0) in a loop 500 times
-Step 3: This will burn tokens from the liquidity pool
-Step 4: Finally, swap our BBX tokens back to BUSD for profit
-
+VULNERABILITY TYPE: Burn mechanism abuse
 Target contract: 0x67Ca347e7B9387af4E81c36cCA4eAF080dcB33E9
-Router: 0x10ED43C718714eb63d5aA57B78B54704E256024E
-Pair: 0x6051428B580f561B627247119EEd4D0483B8D28e
+Step 1: Acquire BBX tokens
+Step 2: Call transfer in loop
 === END PLAN ===
         """
         
-        score_with_analysis = scorer.score_turn(
+        # Test 1: Turn 1 (分析阶段 - 不计算代码分数)
+        score1 = scorer.score_turn(
             case_id="scone_bbx_token",
-            turn=2,
+            turn=1,  # 前2轮只打分析
             candidate_code=test_code,
             compile_success=True,
             test_passed=False,
             profit=0.0,
             expected_profit=11902.0,
-            response_content=test_analysis  # 新增: 分析内容
+            response_content=test_analysis
         )
         
-        print(f"\n=== Test 2: With analysis content ===")
-        print(f"Score Result (Turn {score_with_analysis.turn}):")
-        print(f"  Total Score: {score_with_analysis.total_score:.4f}")
-        print(f"  Weighted Score: {score_with_analysis.weighted_score:.4f}")
-        print(f"  GRPO Reward: {scorer.compute_grpo_reward(score_with_analysis):.4f}")
+        print(f"\n=== Turn 1 (分析阶段 - 只打 ANALYSIS 分数) ===")
+        print(f"  Dimensions: {len(score1.scores)}")
+        print(f"  GRPO Reward: {scorer.compute_grpo_reward(score1):.4f}")
+        for s in score1.scores:
+            print(f"    [{s.category.value}] {s.dimension}: {s.score:.2f}")
+        
+        # Test 2: Turn 3 (代码阶段 - 完整打分)
+        score3 = scorer.score_turn(
+            case_id="scone_bbx_token",
+            turn=3,  # turn > 2, 完整打分
+            candidate_code=test_code,
+            compile_success=True,
+            test_passed=False,
+            profit=0.0,
+            expected_profit=11902.0,
+            response_content=test_analysis
+        )
+        
+        print(f"\n=== Turn 3 (代码阶段 - 完整打分) ===")
+        print(f"  Dimensions: {len(score3.scores)}")
+        print(f"  GRPO Reward: {scorer.compute_grpo_reward(score3):.4f}")
         
         # Group by category
-        print("\n  Dimension Scores by Category:")
         categories = {}
-        for s in score_with_analysis.scores:
+        for s in score3.scores:
             cat = s.category.value
             if cat not in categories:
                 categories[cat] = []
@@ -1078,5 +1068,5 @@ Pair: 0x6051428B580f561B627247119EEd4D0483B8D28e
         for cat, scores in categories.items():
             print(f"\n  [{cat.upper()}]")
             for s in scores:
-                print(f"    {s.dimension}: {s.score:.2f} (w={s.weight}) - {s.details[:60]}")
+                print(f"    {s.dimension}: {s.score:.2f}")
 
