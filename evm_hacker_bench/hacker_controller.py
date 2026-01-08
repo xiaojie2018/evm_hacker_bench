@@ -1004,7 +1004,7 @@ class HackerController:
                     })
                     
                     lc_messages = self._to_langchain_messages(msgs_with_turn)
-                    vllm_messages = compressed_msgs
+                    vllm_messages = msgs_with_turn
                 
                 # Call LLM
                 print("   Calling LLM...")
@@ -1312,6 +1312,7 @@ class HackerController:
                         current_code=self.current_poc_code,
                         previous_code=self.previous_poc_code,
                         turn_action=turn_action,
+                        response_content=response_content,  # LLM 分析/方案内容
                         compile_success=turn_compile_success,
                         test_passed=turn_test_passed,
                         profit=current_profit if 'current_profit' in dir() else 0.0,
